@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treino de Tênis de Mesa - Esvanecimento de Scripts</title>
+    <!-- Tailwind CSS CDN para design moderno e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .touch-target {
+            min-height: 48px;
+            min-width: 48px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <header class="bg-indigo-700 text-white shadow-md p-4">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl font-bold">Treino de Tênis de Mesa</h1>
+                <p class="text-xs text-indigo-200">Baseado em Brown et al. (2008) — Esvanecimento de Scripts</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="current-mode-label" class="text-sm bg-indigo-800 px-3 py-1 rounded-full font-medium">Modo: Tocar nas palavras</span>
+                <button id="toggle-mode-btn" onclick="toggleResponseMode()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm font-semibold border border-indigo-400 transition touch-target">Alternar para Falar</button>
+            </div>
+        </div>
+        <!-- 7-Level Progress Bar -->
+        <div class="max-w-4xl mx-auto mt-4">
+            <div class="flex justify-between text-xs text-indigo-200 mb-1">
+                <span id="level-indicator-text">Nível 1 de 7</span>
+                <span id="level-status-text">0/6 assuntos concluídos</span>
+            </div>
+            <div class="grid grid-cols-7 gap-1 h-3" id="level-bar">
+                <div class="bg-indigo-500 rounded-sm" data-lvl="1"></div>
+                <div class="bg-indigo-900 rounded-sm opacity-50" data-lvl="2"></div>
+                <div class="bg-indigo-900 rounded-sm opacity-50" data-lvl="3"></div>
+                <div class="bg-indigo-900 rounded-sm opacity-50" data-lvl="4"></div>
+                <div class="bg-indigo-900 rounded-sm opacity-50" data-lvl="5"></div>
+                <div class="bg-indigo-900 rounded-sm opacity-50" data-lvl="6"></div>
+                <div class="bg-indigo-900 rounded-sm opacity-50" data-lvl="7"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto p-4 flex-grow grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Left Column: Topics List & Controls -->
+        <section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+            <div>
+                <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3">Assuntos do Treino</h2>
+                <ul id="topics-list" class="space-y-2">
+                    <!-- Dinamicamente preenchido via JS -->
+                </ul>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-100">
+                <button onclick="confirmResetTraining()" class="w-full bg-red-50 hover:bg-red-100 text-red-700 font-medium py-2 px-4 rounded-lg text-sm border border-red-200 transition touch-target">Recomeçar o treino</button>
+            </div>
+        </section>
+
+        <!-- Right/Center Column: Main Task Interface (7 Mandatory Elements visible without scrolling) -->
+        <section class="md:col-span-2 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+            
+            <div id="training-active-area">
+                <!-- 1. Nome do Assunto -->
+                <div class="flex justify-between items-center mb-2">
+                    <span id="topic-badge" class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-md uppercase">Assunto 1: A Raquete</span>
+                    <span id="topic-counter" class="text-xs text-slate-500 font-medium">Restam 5 assuntos neste nível</span>
+                </div>
+
+                <!-- 2. Frase curta de contexto -->
+                <p id="context-sentence" class="text-sm text-slate-600 mb-3 bg-slate-50 p-2.5 rounded-lg border border-slate-100 font-medium">Contexto: Equipamentos básicos do tênis de mesa.</p>
+
+                <!-- 3. Fala do parceiro simulado -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded-r-lg mb-4">
+                    <p class="text-xs font-bold text-blue-700 uppercase mb-1">Parceiro de Conversa:</p>
+                    <p id="partner-speech" class="text-slate-800 font-medium text-sm">"Comprei uma raquete nova, mas não entendo nada de borracha."</p>
+                </div>
+
+                <!-- 4. Frase-modelo no estado de apoio do nível atual -->
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg mb-4">
+                    <label class="block text-xs font-bold text-amber-800 uppercase mb-1">O que você pode dizer (Frase-modelo):</label>
+                    <div id="model-phrase-display" class="text-amber-900 font-semibold text-base">eu prefiro a borracha lisa</div>
+                </div>
+
+                <!-- Feedback Area (Errors / Success / Incomplete hints) -->
+                <div id="feedback-box" class="hidden p-3 rounded-lg mb-3 text-sm font-medium"></div>
+
+                <!-- Voice Mode Specific Controls (Hidden by default) -->
+                <div id="voice-mode-container" class="hidden mb-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700 uppercase">Modo Voz (Gravação)</span>
+                        <span id="mic-status" class="text-xs text-slate-500">Pronto para ouvir</span>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <button id="mic-btn" onclick="toggleMicrophone()" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 touch-target shadow">
+                            🎤 Falar Frase
+                        </button>
+                        <div id="transcription-box" class="flex-grow bg-white p-2 rounded border border-slate-200 text-sm text-slate-700 italic">
+                            O que foi ouvido aparecerá aqui...
+                        </div>
+                    </div>
+                    <div id="voice-correction-actions" class="hidden mt-2 flex gap-2">
+                        <button onclick="discardVoiceAttempt()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs px-3 py-1.5 rounded font-medium border border-amber-300 touch-target">Não foi isso que eu disse</button>
+                    </div>
+                </div>
+
+                <!-- 5. Palavras e trechos para tocar / Área de montagem -->
+                <div id="touch-mode-container">
+                    <div class="mb-3">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sua Frase (Toque nas palavras abaixo na ordem correta):</label>
+                        <div id="built-phrase-area" class="min-h-[50px] p-3 bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg flex flex-wrap gap-2 items-center">
+                            <span class="text-slate-400 text-sm italic" id="empty-placeholder">Toque nas palavras na bandeja para montar...</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Bandeja de Palavras Disponíveis:</label>
+                        <div id="word-tray" class="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-lg border border-slate-200 min-h-[60px]">
+                            <!-- Palavras embaralhadas + distratores -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Controles Obrigatórios (Funcionando sempre) -->
+            <div class="pt-3 border-t border-slate-100 flex flex-wrap gap-2 justify-between items-center">
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="undoLastWord()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition touch-target">Desfazer</button>
+                    <button onclick="clearBuiltPhrase()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition touch-target">Limpar</button>
+                    <button onclick="resetCurrentTopic()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition touch-target">Recomeçar este assunto</button>
+                    <button onclick="openExplanationModal()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold py-2 px-3 rounded-lg border border-indigo-200 transition touch-target">Por que não contou?</button>
+                </div>
+                <div>
+                    <button id="speak-btn-action" onclick="evaluateResponse()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-6 rounded-lg text-sm shadow transition touch-target">Falar a frase</button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-100 border-t border-slate-200 py-3 px-4 text-center text-xs text-slate-500">
+        <p>Requisitos do Modo Voz: Requer conexão com a internet e permissão de microfone. Pode não funcionar ao abrir diretamente do arquivo local (recomenda-se servidor local ou hospedagem).</p>
+    </footer>
+
+    <!-- Level Up Modal Banner -->
+    <div id="levelup-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-indigo-100 text-center">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 font-bold">🎉</div>
+            <h3 id="levelup-title" class="text-xl font-bold text-slate-800 mb-2">Parabéns! Nível Concluído</h3>
+            <p id="levelup-desc" class="text-slate-600 text-sm mb-6 leading-relaxed">Você avançou para o próximo nível de esvanecimento de scripts.</p>
+            <button onclick="closeLevelUpModal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl text-base shadow transition touch-target">Continuar</button>
+        </div>
+    </div>
+
+    <!-- "Por que não contou?" Modal -->
+    <div id="explanation-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">💡 Detalhes da Avaliação</h3>
+            <div class="space-y-3 mb-6 text-sm text-slate-700 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div>
+                    <span class="font-bold block text-xs uppercase text-slate-500">Frase que você montou:</span>
+                    <p id="modal-user-phrase" class="font-medium text-slate-900 mt-0.5">-</p>
+                </div>
+                <div>
+                    <span class="font-bold block text-xs uppercase text-slate-500">Frase-modelo completa:</span>
+                    <p id="modal-model-phrase" class="font-medium text-slate-900 mt-0.5">-</p>
+                </div>
+                <div>
+                    <span class="font-bold block text-xs uppercase text-slate-500">Instrução de correção:</span>
+                    <p id="modal-instruction" class="font-medium text-indigo-700 mt-0.5">-</p>
+                </div>
+            </div>
+            <button onclick="closeExplanationModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition touch-target">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Summary Modal at the end of Level 7 -->
+    <div id="summary-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-indigo-200">
+            <div class="text-center mb-4">
+                <span class="text-3xl">🏆</span>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1">Treino Concluído com Sucesso!</h3>
+                <p class="text-sm text-slate-600">Resumo completo da sessão de esvanecimento de scripts.</p>
+            </div>
+            <div id="summary-content" class="space-y-2 mb-6 text-sm bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <!-- Preenchido via JS -->
+            </div>
+            <button onclick="restartFullTraining()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl text-base shadow transition touch-target">Recomeçar Todo o Treino</button>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos 6 assuntos na ordem exata solicitada
+        const TOPICS = [
+            {
+                id: 1,
+                name: "A raquete",
+                context: "Equipamentos básicos e acessórios de jogo.",
+                partnerSpeech: "Comprei uma raquete nova, mas não entendo nada de borracha.",
+                modelPhrase: "eu prefiro a borracha lisa",
+                keywords: ["borracha", "lisa", "raquete"],
+                distractors: ["cadeira", "amanhã", "verde"]
+            },
+            {
+                id: 2,
+                name: "A bolinha",
+                context: "Especificações oficiais da esfera de jogo.",
+                partnerSpeech: "Essa bolinha branca está quicando estranho na mesa.",
+                modelPhrase: "a bola oficial tem que ser de três estrelas",
+                keywords: ["bola", "oficial", "estrelas"],
+                distractors: ["janela", "computador", "azul"]
+            },
+            {
+                id: 3,
+                name: "A rede",
+                context: "Estrutura e montagem da mesa.",
+                partnerSpeech: "Achei que a rede estava um pouco baixa hoje.",
+                modelPhrase: "a altura correta da rede é de quinze centímetros",
+                keywords: ["altura", "rede", "centímetros"],
+                distractors: ["relógio", "telefone", "doce"]
+            },
+            {
+                id: 4,
+                name: "A mesa",
+                context: "Dimensões e área de jogo.",
+                partnerSpeech: "Esta mesa oficial parece bem espaçosa para jogar.",
+                modelPhrase: "as medidas oficiais da mesa são dois metros e setenta",
+                keywords: ["medidas", "mesa", "metros"],
+                distractors: ["porta", "livro", "amarelo"]
+            },
+            {
+                id: 5,
+                name: "Uma regra oficial do jogo",
+                context: "Normas de arbitragem e saques.",
+                partnerSpeech: "Como funciona o rodízio de saques no set?",
+                modelPhrase: "o saque deve alternar a cada dois pontos marcados",
+                keywords: ["saque", "alternar", "pontos"],
+                distractors: ["caneta", "praia", "computador"]
+            },
+            {
+                id: 6,
+                name: "Um destaque do tênis de mesa brasileiro",
+                context: "Atletas de elite do cenário nacional.",
+                partnerSpeech: "Você acompanha os principais atletas do Brasil no exterior?",
+                modelPhrase: "o hugo calderano é o nosso maior destaque mundial",
+                keywords: ["hugo", "calderano", "destaque"],
+                distractors: ["tapete", "geladeira", "nuvem"]
+            }
+        ];
+
+        // Estado do Aplicativo
+        let appState = {
+            currentLevel: 1, // 1 a 7
+            currentTopicIndex: 0, // 0 a 5
+            completedTopics: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }, // Guarda IDs concluídos por nível
+            responseMode: 'touch', // 'touch' ou 'voice'
+            builtWords: [],
+            trayWords: [],
+            greenLockedIndex: 0, // Índice de palavras travadas em verde no modo toque
+            stats: {
+                scriptInteractions: 0,
+                nonScriptInteractions: 0,
+                textFreeInteractions: 0,
+                unpromptedResponses: 0,
+                touchResponses: 0,
+                voiceResponses: 0,
+                voiceDiscarded: 0
+            },
+            lastEvaluationResult: null,
+            lastMissingHint: ""
+        };
+
+        // Web Speech API recognition instance
+        let recognition = null;
+        let isListening = false;
+
+        // Inicialização ao carregar a página
+        window.addEventListener('DOMContentLoaded', () => {
+            loadProgress();
+            initSpeechRecognition();
+            initLevel();
+        });
+
+        // Salvar e carregar progresso no localStorage
+        function saveProgress() {
+            localStorage.setItem('tt_script_fading_state', JSON.stringify(appState));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('tt_script_fading_state');
+            if (saved) {
+                try {
+                    appState = JSON.parse(saved);
+                } catch (e) {
+                    console.error("Erro ao carregar progresso:", e);
+                }
+            }
+        }
+
+        function confirmResetTraining() {
+            if (confirm("Tem certeza que deseja recomeçar todo o treino do zero? Todo o progresso será apagado.")) {
+                localStorage.removeItem('tt_script_fading_state');
+                appState = {
+                    currentLevel: 1,
+                    currentTopicIndex: 0,
+                    completedTopics: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
+                    responseMode: 'touch',
+                    builtWords: [],
+                    trayWords: [],
+                    greenLockedIndex: 0,
+                    stats: { scriptInteractions: 0, nonScriptInteractions: 0, textFreeInteractions: 0, unpromptedResponses: 0, touchResponses: 0, voiceResponses: 0, voiceDiscarded: 0 },
+                    lastEvaluationResult: null,
+                    lastMissingHint: ""
+                };
+                initLevel();
+            }
+        }
+
+        function restartFullTraining() {
+            document.getElementById('summary-modal').classList.add('hidden');
+            confirmResetTraining();
+        }
+
+        // Alternar modo de resposta (Tocar vs Voz)
+        function toggleResponseMode() {
+            if (appState.responseMode === 'touch') {
+                appState.responseMode = 'voice';
+                document.getElementById('current-mode-label').innerText = "Modo: Falar";
+                document.getElementById('toggle-mode-btn').innerText = "Alternar para Tocar";
+                document.getElementById('touch-mode-container').classList.add('hidden');
+                document.getElementById('voice-mode-container').classList.remove('hidden');
+                document.getElementById('speak-btn-action').innerText = "Enviar Voz";
+            } else {
+                appState.responseMode = 'touch';
+                document.getElementById('current-mode-label').innerText = "Modo: Tocar nas palavras";
+                document.getElementById('toggle-mode-btn').innerText = "Alternar para Falar";
+                document.getElementById('touch-mode-container').classList.remove('hidden');
+                document.getElementById('voice-mode-container').classList.add('hidden');
+                document.getElementById('speak-btn-action').innerText = "Falar a frase";
+            }
+            saveProgress();
+        }
+
+        // Configuração da Web Speech API com fallback automático
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                console.warn("Speech Recognition não suportado neste navegador. Forçando modo toque.");
+                return;
+            }
+            try {
+                recognition = new SpeechRecognition();
+                recognition.lang = 'pt-BR';
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                recognition.onresult = (event) => {
+                    const speechResult = event.results[0][0].transcript;
+                    document.getElementById('transcription-box').innerText = speechResult;
+                    document.getElementById('transcription-box').classList.remove('italic', 'text-slate-500');
+                    document.getElementById('transcription-box').classList.add('text-slate-900', 'font-semibold');
+                    document.getElementById('voice-correction-actions').classList.remove('hidden');
+                    isListening = false;
+                    document.getElementById('mic-status').innerText = "Gravação concluída";
+                    document.getElementById('mic-btn').classList.remove('bg-emerald-600', 'animate-pulse');
+                    document.getElementById('mic-btn').classList.add('bg-red-600');
+                    
+                    // Avaliar resposta falada
+                    evaluateVoiceResponse(speechResult);
+                };
+
+                recognition.onerror = (event) => {
+                    console.warn("Erro no reconhecimento de voz:", event.error);
+                    isListening = false;
+                    document.getElementById('mic-status').innerText = "Erro no microfone. Alternando para toque.";
+                    // Fallback automático para modo toque
+                    if (appState.responseMode === 'voice') {
+                        toggleResponseMode();
+                        showFeedback("O modo por voz falhou ou foi negado. O aplicativo voltou automaticamente para o modo por toque.", "amber");
+                    }
+                };
+
+                recognition.onend = () => {
+                    isListening = false;
+                    document.getElementById('mic-status').innerText = "Pronto para ouvir";
+                };
+            } catch (e) {
+                console.warn("Erro ao iniciar SpeechRecognition:", e);
+            }
+        }
+
+        function toggleMicrophone() {
+            if (!recognition) {
+                alert("O reconhecimento de voz não é suportado pelo seu navegador atual. Use o modo por toque.");
+                if (appState.responseMode === 'voice') toggleResponseMode();
+                return;
+            }
+            if (isListening) {
+                recognition.stop();
+                isListening = false;
+            } else {
+                try {
+                    recognition.start();
+                    isListening = true;
+                    document.getElementById('mic-status').innerText = "Ouvindo... Fale agora";
+                    document.getElementById('mic-btn').classList.remove('bg-red-600');
+                    document.getElementById('mic-btn').classList.add('bg-emerald-600', 'animate-pulse');
+                } catch (e) {
+                    console.error("Falha ao iniciar microfone:", e);
+                    // Fallback automático
+                    toggleResponseMode();
+                    showFeedback("Permissão de microfone negada ou indisponível. Retornado ao modo por toque.", "amber");
+                }
+            }
+        }
+
+        function discardVoiceAttempt() {
+            appState.stats.voiceDiscarded++;
+            document.getElementById('transcription-box').innerText = "Transcrição descartada. Fale novamente...";
+            document.getElementById('transcription-box').classList.add('italic', 'text-slate-500');
+            document.getElementById('voice-correction-actions').classList.add('hidden');
+            hideFeedback();
+            saveProgress();
+        }
+
+        // Inicializar nível atual e carregar o assunto correspondente
+        function initLevel() {
+            // Verificar se todos os assuntos do nível atual foram concluídos
+            const completedInLvl = appState.completedTopics[appState.currentLevel] || [];
+            
+            // Encontrar primeiro assunto não concluído
+            let pendingTopics = TOPICS.filter(t => !completedInLvl.includes(t.id));
+            if (pendingTopics.length === 0 && appState.currentLevel <= 7) {
+                // Se completou todos os assuntos do nível, avançar de nível ou encerrar
+                if (appState.currentLevel < 7) {
+                    triggerLevelUp(appState.currentLevel + 1);
+                    return;
+                } else {
+                    showSummaryModal();
+                    return;
+                }
+            }
+
+            // Selecionar próximo assunto pendente
+            const currentTopic = pendingTopics[0];
+            appState.currentTopicIndex = TOPICS.findIndex(t => t.id === currentTopic.id);
+
+            renderLevelBar();
+            renderTopicsList();
+            setupTopicWorkspace();
+            saveProgress();
+        }
+
+        function renderLevelBar() {
+            document.getElementById('level-indicator-text').innerText = `Nível ${appState.currentLevel} de 7`;
+            const completedCount = (appState.completedTopics[appState.currentLevel] || []).length;
+            document.getElementById('level-status-text').innerText = `${completedCount}/6 assuntos concluídos`;
+
+            const bars = document.querySelectorAll('#level-bar div');
+            bars.forEach((bar, idx) => {
+                const lvl = idx + 1;
+                bar.className = "rounded-sm transition-all duration-300 ";
+                if (lvl < appState.currentLevel) {
+                    bar.className += "bg-emerald-500 opacity-100";
+                } else if (lvl === appState.currentLevel) {
+                    bar.className += "bg-indigo-400 opacity-100 animate-pulse";
+                } else {
+                    bar.className += "bg-indigo-900 opacity-30";
+                }
+            });
+        }
+
+        function renderTopicsList() {
+            const listEl = document.getElementById('topics-list');
+            listEl.innerHTML = "";
+            const completedInLvl = appState.completedTopics[appState.currentLevel] || [];
+            const activeTopicId = TOPICS[appState.currentTopicIndex].id;
+
+            TOPICS.forEach((topic, idx) => {
+                const isCompleted = completedInLvl.includes(topic.id);
+                const isActive = topic.id === activeTopicId;
+
+                const li = document.createElement('li');
+                li.className = `p-2.5 rounded-lg text-xs font-semibold flex items-center justify-between border transition ${
+                    isActive ? 'bg-indigo-50 border-indigo-300 text-indigo-900 shadow-sm' : 
+                    isCompleted ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600'
+                }`;
+
+                li.innerHTML = `
+                    <span class="flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${isCompleted ? 'bg-emerald-600 text-white' : isActive ? 'bg-indigo-600 text-white' : 'bg-slate-300 text-slate-700'}">${idx + 1}</span>
+                        ${topic.name}
+                    </span>
+                    <span>${isCompleted ? '✅ Concluído' : isActive ? '👉 Atual' : 'Pendente'}</span>
+                `;
+                listEl.appendChild(li);
+            });
+        }
+
+        function setupTopicWorkspace() {
+            const topic = TOPICS[appState.currentTopicIndex];
+            document.getElementById('topic-badge').innerText = `Assunto ${appState.currentTopicIndex + 1}: ${topic.name}`;
+            const completedCount = (appState.completedTopics[appState.currentLevel] || []).length;
+            document.getElementById('topic-counter').innerText = `Restam ${6 - completedCount} assuntos para subir`;
+            document.getElementById('context-sentence').innerText = `Contexto: ${topic.context}`;
+            document.getElementById('partner-speech').innerText = `"${topic.partnerSpeech}"`;
+
+            // Aplicar esvanecimento conforme o nível (Item 8)
+            renderModelPhraseByLevel(topic);
+
+            // Preparar bandeja de palavras com embaralhamento e distratores (Item 4)
+            prepareWordTray(topic);
+
+            // Limpar área montada
+            appState.builtWords = [];
+            appState.greenLockedIndex = 0;
+            renderBuiltPhraseArea();
+            hideFeedback();
+            document.getElementById('voice-correction-actions').classList.add('hidden');
+            document.getElementById('transcription-box').innerText = "O que foi ouvido aparecerá aqui...";
+            document.getElementById('transcription-box').className = "flex-grow bg-white p-2 rounded border border-slate-200 text-sm text-slate-700 italic";
+        }
+
+        // Lógica de esvanecimento em sete níveis (Item 8)
+        function renderModelPhraseByLevel(topic) {
+            const displayEl = document.getElementById('model-phrase-display');
+            const words = topic.modelPhrase.split(' ');
+            let displayedText = topic.modelPhrase;
+
+            if (appState.currentLevel === 1) {
+                // Nível 1: Frase inteira nos 6 assuntos
+                displayedText = topic.modelPhrase;
+            } else if (appState.currentLevel >= 2 && appState.currentLevel <= 4) {
+                // Níveis 2, 3 e 4: Perde última, duas últimas, três últimas
+                let hideCount = appState.currentLevel - 1;
+                if (hideCount >= words.length) hideCount = words.length - 1;
+                let keptWords = words.slice(0, words.length - hideCount);
+                let dashes = Array(hideCount).fill("____").join(" ");
+                displayedText = keptWords.join(" ") + " " + dashes;
+            } else if (appState.currentLevel === 5) {
+                // Nível 5: Frase inteira em apenas 3 assuntos (índices 0, 2, 4)
+                if ([0, 2, 4].includes(appState.currentTopicIndex)) {
+                    displayedText = topic.modelPhrase;
+                } else {
+                    displayedText = "*(Nenhuma frase-modelo exibida neste assunto)*";
+                }
+            } else if (appState.currentLevel === 6) {
+                // Nível 6: Frase inteira em apenas 1 assunto (índice 0)
+                if (appState.currentTopicIndex === 0) {
+                    displayedText = topic.modelPhrase;
+                } else {
+                    displayedText = "*(Nenhuma frase-modelo exibida neste assunto)*";
+                }
+            } else if (appState.currentLevel === 7) {
+                // Nível 7: Nenhum assunto exibe frase-modelo
+                displayedText = "*(Sem apoio visual de frase-modelo. Diga ou monte usando palavras-chave).*";
+            }
+
+            displayEl.innerText = displayedText;
+        }
+
+        function prepareWordTray(topic) {
+            const trayEl = document.getElementById('word-tray');
+            trayEl.innerHTML = "";
+
+            // Palavras da frase completa
+            let phraseWords = topic.modelPhrase.split(' ');
+            // Distratores (2 ou 3 claramente fora de contexto, nunca sinônimos ou complementos válidos)
+            let trayItems = [...phraseWords, ...topic.distractors];
+
+            // Embaralhar aleatoriamente
+            trayItems.sort(() => Math.random() - 0.5);
+
+            trayItems.forEach((word) => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white hover:bg-indigo-50 text-slate-800 font-semibold px-3 py-2 rounded-lg border border-slate-300 text-sm shadow-sm transition touch-target flex items-center";
+                btn.innerText = word;
+                btn.onclick = () => addWordToBuilt(word, btn);
+                trayEl.appendChild(btn);
+            });
+        }
+
+        function addWordToBuilt(word, sourceBtn) {
+            appState.builtWords.push({ word: word, sourceElement: sourceBtn });
+            sourceBtn.style.opacity = "0.4";
+            sourceBtn.disabled = true;
+            renderBuiltPhraseArea();
+        }
+
+        function removeWordFromBuilt(index) {
+            // Impedir remover se estiver no trecho travado em verde (se houver lógica ativa)
+            if (index < appState.greenLockedIndex) {
+                // Trecho travado não pode ser removido pelo usuário diretamente, exceto via "Recomeçar este assunto"
+                return;
+            }
+            const item = appState.builtWords[index];
+            if (item && item.sourceElement) {
+                item.sourceElement.style.opacity = "1";
+                item.sourceElement.disabled = false;
+            }
+            appState.builtWords.splice(index, 1);
+            renderBuiltPhraseArea();
+        }
+
+        function renderBuiltPhraseArea() {
+            const area = document.getElementById('built-phrase-area');
+            area.innerHTML = "";
+
+            if (appState.builtWords.length === 0) {
+                area.innerHTML = `<span class="text-slate-400 text-sm italic" id="empty-placeholder">Toque nas palavras na bandeja para montar...</span>`;
+                return;
+            }
+
+            appState.builtWords.forEach((item, idx) => {
+                const span = document.createElement('span');
+                const isGreenLocked = idx < appState.greenLockedIndex;
+                span.className = `inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm cursor-pointer transition ${
+                    isGreenLocked ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-indigo-100 text-indigo-800 border border-indigo-300 hover:bg-indigo-200'
+                }`;
+                span.innerHTML = `${item.word} ${isGreenLocked ? '🔒' : '✕'}`;
+                span.onclick = () => {
+                    if (!isGreenLocked) removeWordFromBuilt(idx);
+                };
+                area.appendChild(span);
+            });
+        }
+
+        // Controles obrigatórios (Item 4)
+        function undoLastWord() {
+            if (appState.builtWords.length > appState.greenLockedIndex) {
+                removeWordFromBuilt(appState.builtWords.length - 1);
+            }
+        }
+
+        function clearBuiltPhrase() {
+            // Remove todas as palavras livres (mantém apenas as travadas em verde, se houver)
+            while (appState.builtWords.length > appState.greenLockedIndex) {
+                let item = appState.builtWords.pop();
+                if (item && item.sourceElement) {
+                    item.sourceElement.style.opacity = "1";
+                    item.sourceElement.disabled = false;
+                }
+            }
+            renderBuiltPhraseArea();
+        }
+
+        function resetCurrentTopic() {
+            // Apaga tudo, inclusive o trecho travado em verde, e devolve todas as palavras à bandeja
+            appState.builtWords.forEach(item => {
+                if (item.sourceElement) {
+                    item.sourceElement.style.opacity = "1";
+                    item.sourceElement.disabled = false;
+                }
+            });
+            appState.builtWords = [];
+            appState.greenLockedIndex = 0;
+            renderBuiltPhraseArea();
+            hideFeedback();
+        }
+
+        // Avaliação da Resposta (Modo Toque / Falar)
+        function evaluateResponse() {
+            const topic = TOPICS[appState.currentTopicIndex];
+            const builtString = appState.builtWords.map(i => i.word).join(" ");
+            appState.stats.touchResponses++;
+            processEvaluation(builtString, topic, 'touch');
+        }
+
+        function evaluateVoiceResponse(transcript) {
+            const topic = TOPICS[appState.currentTopicIndex];
+            appState.stats.voiceResponses++;
+            processEvaluation(transcript, topic, 'voice');
+        }
+
+        // Normalização e Limpeza para comparação com tolerância (Item 5 e 6)
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove acentos
+                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "") // remove pontuação
+                .trim();
+        }
+
+        // Ignorar artigos, preposições, conjunções e pronomes previstos (Item 6)
+        function removeIgnoredWords(text) {
+            const ignored = ['o', 'a', 'os', 'as', 'um', 'uma', 'uns', 'umas', 'de', 'do', 'da', 'dos', 'das', 'em', 'no', 'na', 'nos', 'nas', 'por', 'para', 'com', 'e', 'ou', 'mas', 'que', 'se', 'eu', 'ele', 'ela', 'nosso', 'nossa', 'seu', 'sua'];
+            const words = normalizeText(text).split(/\s+/);
+            return words.filter(w => !ignored.includes(w));
+        }
+
+        function processEvaluation(userText, topic, mode) {
+            const cleanUser = normalizeText(userText);
+            const cleanModel = normalizeText(topic.modelPhrase);
+            
+            const userContentWords = removeIgnoredWords(userText);
+            const modelContentWords = removeIgnoredWords(topic.modelPhrase);
+
+            // Verificar se todas as palavras de conteúdo do modelo estão presentes
+            let hasAllContentWords = modelContentWords.every(cw => userContentWords.includes(cw));
+            let isCompleteSentence = userContentWords.length >= modelContentWords.length;
+
+            // Nível 7: Regra especial (qualquer frase completa com palavras-chave e >= 5 palavras)
+            if (appState.currentLevel === 7) {
+                const userWordsArr = cleanUser.split(/\s+/);
+                const hasKeywords = topic.keywords.every(kw => cleanUser.includes(normalizeText(kw)));
+                if (userWordsArr.length >= 5 && hasKeywords) {
+                    handleScriptInteraction(topic, "Interação sem nenhum apoio textual (Nível 7)");
+                    return;
+                }
+            }
+
+            // Caso 1: Interação com script (contém todas as palavras de conteúdo, tolerando artigos/preposições/conjunções/pronomes)
+            // Ou se for exatamente igual
+            if (cleanUser === cleanModel || (hasAllContentWords && isCompleteSentence)) {
+                // Verificar se houve troca de palavra de conteúdo principal
+                let exactContentMatch = modelContentWords.every((w, idx) => userContentWords[idx] === w);
+                
+                if (cleanUser === cleanModel || exactContentMatch || hasAllContentWords) {
+                    handleScriptInteraction(topic, "Interação com script");
+                    return;
+                }
+            }
+
+            // Caso 2: Interação sem script (frase completa sobre o assunto, mas troca alguma palavra de conteúdo, ex: rápida em vez de lisa)
+            // Condição: frase completa (> 4 palavras) contendo alguma palavra-chave do assunto
+            const userWordsCount = cleanUser.split(/\s+/).length;
+            const containsKeyword = topic.keywords.some(kw => cleanUser.includes(normalizeText(kw)));
+            
+            if (userWordsCount >= 4 && containsKeyword) {
+                handleNonScriptInteraction(topic, userText);
+                return;
+            }
+
+            // Caso 3: Resposta incompleta ou fora do assunto
+            handleIncompleteResponse(topic, userText, modelContentWords, userContentWords);
+        }
+
+        function handleScriptInteraction(topic, desc) {
+            appState.stats.scriptInteractions++;
+            if (appState.currentLevel >= 5) appState.stats.textFreeInteractions++;
+            if (appState.currentLevel === 1) appState.stats.unpromptedResponses++;
+
+            // Marcar assunto como concluído no nível atual
+            if (!appState.completedTopics[appState.currentLevel].includes(topic.id)) {
+                appState.completedTopics[appState.currentLevel].push(topic.id);
+            }
+
+            saveProgress();
+
+            let remaining = 6 - appState.completedTopics[appState.currentLevel].length;
+            showFeedback(`✅ Perfeito! ${desc}. O assunto foi concluído com sucesso! Faltam ${remaining} assuntos para subir de nível.`, "emerald");
+
+            // Avançar após sucesso ou mostrar botão Próximo Assunto
+            setTimeout(() => {
+                initLevel();
+            }, 1800);
+        }
+
+        function handleNonScriptInteraction(topic, userText) {
+            appState.stats.nonScriptInteractions++;
+            saveProgress();
+            showFeedback(`💬 Excelente conversa! Você disse "${userText}", o que vale como conversa sobre o assunto. No entanto, para concluir este assunto e avançar, tente usar a frase-modelo esperada.`, "amber");
+        }
+
+        function handleIncompleteResponse(topic, userText, modelContentWords, userContentWords) {
+            // Localizar divergência palavra a palavra (Item 7)
+            const modelWords = topic.modelPhrase.split(' ');
+            const userWords = userText.split(' ');
+            
+            let divergenceIndex = 0;
+            for (let i = 0; i < Math.max(modelWords.length, userWords.length); i++) {
+                if (normalizeText(modelWords[i] || "") !== normalizeText(userWords[i] || "")) {
+                    divergenceIndex = i;
+                    break;
+                }
+            }
+
+            const expectedWord = modelWords[divergenceIndex] || modelWords[modelWords.length - 1];
+            const prevWord = divergenceIndex > 0 ? modelWords[divergenceIndex - 1] : "";
+            
+            let instruction = prevWord ? `Toque em '${expectedWord}' depois de '${prevWord}'.` : `Toque em '${expectedWord}'.`;
+            appState.lastMissingHint = instruction;
+            appState.lastUserPhrase = userText;
+
+            // Atualizar travamento verde no modo toque (trecho inicial correto)
+            let correctCount = 0;
+            for (let i = 0; i < userWords.length; i++) {
+                if (normalizeText(userWords[i]) === normalizeText(modelWords[i])) {
+                    correctCount++;
+                } else {
+                    break;
+                }
+            }
+            appState.greenLockedIndex = correctCount;
+            renderBuiltPhraseArea();
+
+            showFeedback(`⚠️ Resposta incompleta ou faltando termos. Instrução: ${instruction}`, "red");
+        }
+
+        function showFeedback(message, type) {
+            const box = document.getElementById('feedback-box');
+            box.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-800', 'border-emerald-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200', 'bg-red-50', 'text-red-800', 'border-red-200');
+            
+            if (type === 'emerald') box.classList.add('bg-emerald-50', 'text-emerald-800', 'border', 'border-emerald-200');
+            else if (type === 'amber') box.classList.add('bg-amber-50', 'text-amber-800', 'border', 'border-amber-200');
+            else if (type === 'red') box.classList.add('bg-red-50', 'text-red-800', 'border', 'border-red-200');
+
+            box.innerText = message;
+            box.classList.remove('hidden');
+        }
+
+        function hideFeedback() {
+            document.getElementById('feedback-box').classList.add('hidden');
+        }
+
+        // Modals e Anúncios de Nível (Item 9)
+        function triggerLevelUp(nextLevel) {
+            appState.currentLevel = nextLevel;
+            saveProgress();
+
+            let explanation = "";
+            if (nextLevel === 2) explanation = "Agora a última palavra da frase-modelo fica escondida, mas você continua dizendo a frase inteira.";
+            else if (nextLevel === 3) explanation = "Agora as duas últimas palavras ficam escondidas, mantendo a resposta com a frase completa.";
+            else if (nextLevel === 4) explanation = "Agora as três últimas palavras ficam escondidas, mantendo a resposta completa.";
+            else if (nextLevel === 5) explanation = "A frase-modelo volta a aparecer completa, mas em apenas 3 dos 6 assuntos.";
+            else if (nextLevel === 6) explanation = "A frase-modelo aparece completa em apenas 1 assunto, ficando os demais sem exibição.";
+            else if (nextLevel === 7) explanation = "Nenhum assunto exibe frase-modelo. Vale qualquer frase completa com as palavras-chave e pelo menos 5 palavras.";
+
+            document.getElementById('levelup-title').innerText = `🎉 Bem-vindo ao Nível ${nextLevel}!`;
+            document.getElementById('levelup-desc').innerText = explanation;
+            document.getElementById('levelup-modal').classList.remove('hidden');
+        }
+
+        function closeLevelUpModal() {
+            document.getElementById('levelup-modal').classList.add('hidden');
+            initLevel();
+        }
+
+        function openExplanationModal() {
+            const topic = TOPICS[appState.currentTopicIndex];
+            const builtString = appState.builtWords.map(i => i.word).join(" ") || "(Nenhuma palavra montada)";
+            document.getElementById('modal-user-phrase').innerText = builtString;
+            document.getElementById('modal-model-phrase').innerText = topic.modelPhrase;
+            document.getElementById('modal-instruction').innerText = appState.lastMissingHint || "Compare sua frase com a frase-modelo completa.";
+            document.getElementById('explanation-modal').classList.remove('hidden');
+        }
+
+        function closeExplanationModal() {
+            document.getElementById('explanation-modal').classList.add('hidden');
+        }
+
+        function showSummaryModal() {
+            const stats = appState.stats;
+            const content = `
+                <p><strong>Nível final alcançado:</strong> Nível ${appState.currentLevel}</p>
+                <p><strong>Interações com script:</strong> ${stats.scriptInteractions}</p>
+                <p><strong>Interações sem script:</strong> ${stats.nonScriptInteractions}</p>
+                <p><strong>Interações sem apoio textual:</strong> ${stats.textFreeInteractions}</p>
+                <p><strong>Respostas sem dica (Nível 1):</strong> ${stats.unpromptedResponses}</p>
+                <p><strong>Respostas dadas por toque:</strong> ${stats.touchResponses}</p>
+                <p><strong>Respostas dadas por voz:</strong> ${stats.voiceResponses}</p>
+                <p><strong>Tentativas por voz descartadas:</strong> ${stats.voiceDiscarded}</p>
+            `;
+            document.getElementById('summary-content').innerHTML = content;
+            document.getElementById('summary-modal').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
