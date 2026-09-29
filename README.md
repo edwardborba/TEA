@@ -19,11 +19,14 @@ GitHub Pages dá ao arquivo uma URL `https` estável, que funciona em celular e 
 
 `index.html` é o código **exatamente como foi gerado** pela ferramenta de IA, sem nenhuma
 intervenção manual. Isso é condição do delineamento: o que se avalia é o artefato produzido pelo
-comando, não uma versão corrigida dele.
+comando, não uma versão corrigida dele. Um aplicativo remendado à mão deixaria de ser o artefato
+que a pesquisa avalia.
 
-- Data da geração: setembro de 2026
-- Comando de origem: versão de 22/09/2026, com dez itens e quatorze condições de aceitação
+- Data desta versão: 29 de setembro de 2026
+- Comando de origem: **versão 8**, com doze itens e vinte e duas condições de aceitação
+- Ferramenta geradora: Gemini
 - Tema: tênis de mesa (o tema de verificação do estudo é o futebol brasileiro)
+- Fase: desenvolvimento. A coleta de dados começa quando o comando estabilizar.
 
 ## Requisitos do modo por voz
 
