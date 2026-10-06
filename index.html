@@ -3,1081 +3,1333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treino de Conversação - Tênis de Mesa</title>
+    <title>Treino de Conversa - Tênis de Mesa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --success: #16a34a;
-            --success-bg: #f0fdf4;
-            --success-border: #bbf7d0;
-            --danger: #dc2626;
-            --danger-bg: #fef2f2;
-            --danger-border: #fecaca;
-            --border: #cbd5e1;
-            --radius: 12px;
-            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 16px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        header {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 16px;
-        }
-
-        .top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        h1 {
-            font-size: 1.25rem;
-            color: var(--primary);
-        }
-
-        .mode-selector {
-            display: flex;
-            background: var(--bg-color);
-            padding: 4px;
-            border-radius: 8px;
-            gap: 4px;
-        }
-
-        .mode-btn {
-            background: transparent;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--text-muted);
-            min-height: 44px;
-        }
-
-        .mode-btn.active {
-            background: var(--card-bg);
-            color: var(--primary);
-            box-shadow: 0 2px 4px rgb(0 0 0 / 0.05);
-        }
-
-        .progress-bar-container {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .level-indicators {
-            display: flex;
-            gap: 4px;
-            justify-content: space-between;
-        }
-
-        .level-dot {
-            flex: 1;
-            height: 8px;
-            background: var(--border);
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-
-        .level-dot.active {
-            background: var(--primary);
-        }
-
-        .level-dot.completed {
-            background: var(--success);
-        }
-
-        .status-text {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* Elements grid / overview */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .card-section {
-            background: var(--bg-color);
-            border-radius: 8px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .section-label {
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-        }
-
-        .subject-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .context-phrase {
-            font-size: 1rem;
-            color: var(--text-main);
-        }
-
-        .partner-speech {
-            font-size: 1.1rem;
-            font-style: italic;
-            background: #e2e8f0;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .model-phrase-display {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #334155;
-            background: #f1f5f9;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px dashed var(--border);
-        }
-
-        /* Response area */
-        .response-area {
-            min-height: 60px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-            background: var(--card-bg);
-        }
-
-        .response-word {
-            background: var(--bg-color);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-        }
-
-        .response-word.locked {
-            background: var(--success-bg);
-            border-color: var(--success-border);
-            color: var(--success);
-            cursor: default;
-        }
-
-        .response-placeholder {
-            color: var(--text-muted);
-            font-style: italic;
-        }
-
-        /* Tray words */
-        .tray-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
-            min-height: 70px;
-        }
-
-        .tray-word {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 10px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            user-select: none;
-            transition: transform 0.1s, background 0.1s;
-        }
-
-        .tray-word:active {
-            transform: scale(0.96);
-        }
-
-        .tray-word.used {
-            opacity: 0.3;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        /* Controls */
-        .controls-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            min-height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            color: var(--text-main);
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .btn:hover {
-            background: var(--bg-color);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-        }
-
-        /* Voice mode elements */
-        .voice-section {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            align-items: center;
-            padding: 20px 0;
-        }
-
-        .mic-btn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow);
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .mic-btn.recording {
-            background: var(--danger);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-        }
-
-        .transcript-box {
-            width: 100%;
-            background: #f1f5f9;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 16px;
-            min-height: 80px;
-            font-size: 1.1rem;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .voice-helper-text {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        /* Feedback and Modals */
-        .feedback-box {
-            padding: 16px;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .feedback-box.success {
-            background: var(--success-bg);
-            border: 1px solid var(--success-border);
-            color: var(--success);
-        }
-
-        .feedback-box.error {
-            background: var(--danger-bg);
-            border: 1px solid var(--danger-border);
-            color: var(--danger);
-        }
-
-        .subjects-list {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .subject-badge {
-            font-size: 0.8rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: var(--border);
-            color: var(--text-muted);
-        }
-
-        .subject-badge.completed {
-            background: var(--success);
-            color: white;
-        }
-
-        .subject-badge.current {
-            background: var(--primary);
-            color: white;
-            font-weight: bold;
-        }
-
-        footer {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-align: center;
-            border-top: 1px solid var(--bg-color);
-            padding-top: 12px;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 16px;
-        }
-
-        .modal-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 24px;
-            max-width: 500px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.2);
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .touch-target { min-height: 44px; min-width: 44px; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 md:p-8">
 
-<div class="container">
-    <header>
-        <div class="top-row">
-            <h1>Treino de Conversação: Tênis de Mesa</h1>
-            <div class="mode-selector">
-                <button class="mode-btn active" id="modeTouchBtn" onclick="app.setMode('touch')">Tocar nas palavras</button>
-                <button class="mode-btn" id="modeVoiceBtn" onclick="app.setMode('voice')">Falar</button>
+    <header class="w-full max-w-4xl mx-auto mb-6 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-800">Treino de Tênis de Mesa</h1>
+                <p class="text-sm text-slate-500">Prática guiada de reciprocidade de conversa</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-xl text-sm font-semibold border border-indigo-100">
+                    Pontos: <span id="score-display">0</span>
+                </div>
+                <button onclick="confirmResetTraining()" class="text-xs text-rose-600 hover:text-rose-800 underline touch-target flex items-center">
+                    Recomeçar o treino
+                </button>
             </div>
         </div>
-        <div class="progress-bar-container">
-            <div class="level-indicators" id="levelIndicators">
-                <div class="level-dot active" title="Nível 1"></div>
-                <div class="level-dot" title="Nível 2"></div>
-                <div class="level-dot" title="Nível 3"></div>
-                <div class="level-dot" title="Nível 4"></div>
-                <div class="level-dot" title="Nível 5"></div>
-                <div class="level-dot" title="Nível 6"></div>
-                <div class="level-dot" title="Nível 7"></div>
-            </div>
-            <div class="status-text">
-                <span id="currentLevelText">Nível 1 de 7</span>
-                <span id="completedCountText">Concluídos: 0/6</span>
+
+        <!-- Inline confirmation box for training reset -->
+        <div id="reset-confirm-box" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <span>Deseja realmente zerar todo o progresso salvo?</span>
+            <div class="flex gap-2">
+                <button onclick="executeResetTraining()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold touch-target">Sim, apagar tudo</button>
+                <button onclick="cancelResetTraining()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold touch-target">Cancelar</button>
             </div>
         </div>
-        <div class="subjects-list" id="subjectsListHeader"></div>
+
+        <!-- 8-Level Progress Bar -->
+        <div>
+            <div class="flex justify-between text-xs font-medium text-slate-600 mb-1.5">
+                <span id="level-title-indicator">Nível 1 de 8</span>
+                <span id="level-progress-count">Assuntos concluídos: 0/6</span>
+            </div>
+            <div class="grid grid-cols-8 gap-1.5 h-3">
+                <div id="lvl-bar-1" class="bg-indigo-600 rounded-md transition-all"></div>
+                <div id="lvl-bar-2" class="bg-slate-200 rounded-md transition-all"></div>
+                <div id="lvl-bar-3" class="bg-slate-200 rounded-md transition-all"></div>
+                <div id="lvl-bar-4" class="bg-slate-200 rounded-md transition-all"></div>
+                <div id="lvl-bar-5" class="bg-slate-200 rounded-md transition-all"></div>
+                <div id="lvl-bar-6" class="bg-slate-200 rounded-md transition-all"></div>
+                <div id="lvl-bar-7" class="bg-slate-200 rounded-md transition-all"></div>
+                <div id="lvl-bar-8" class="bg-slate-200 rounded-md transition-all"></div>
+            </div>
+        </div>
     </header>
 
-    <main class="main-content" id="mainContent">
-        <!-- Dynamic content goes here -->
+    <main class="w-full max-w-4xl mx-auto flex-grow flex flex-col gap-6">
+
+        <!-- Mode Selector -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="text-sm font-medium text-slate-700">Escolha o modo de interação:</div>
+            <div class="flex bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+                <button id="mode-touch-btn" onclick="switchMode('touch')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-white text-indigo-700 shadow-sm touch-target">
+                    Tocar nas palavras
+                </button>
+                <button id="mode-voice-btn" onclick="switchMode('voice')" class="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 touch-target">
+                    Falar
+                </button>
+            </div>
+        </div>
+
+        <!-- Level Change Notice Banner (Inline, never overlapping) -->
+        <div id="level-notice-banner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm">
+            <h2 id="level-notice-title" class="text-lg font-bold text-amber-900 mb-2">Avanço de Nível</h2>
+            <p id="level-notice-desc" class="text-sm text-amber-800 mb-4"></p>
+            <button onclick="dismissLevelNotice()" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-sm touch-target">
+                Continuar
+            </button>
+        </div>
+
+        <!-- Main Task Area (Visible all 7 elements simultaneously) -->
+        <div id="task-card" class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col gap-5">
+            
+            <!-- Element 1: Assunto name -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span id="subject-badge" class="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-md font-semibold">Assunto 1 de 6</span>
+                    <h2 id="subject-name" class="text-lg sm:text-xl font-bold text-slate-800">A raquete</h2>
+                </div>
+                <span id="extra-badge" class="hidden bg-purple-50 text-purple-700 border border-purple-200 text-xs px-2.5 py-1 rounded-md font-semibold">Assunto Extra de Generalização</span>
+            </div>
+
+            <!-- Element 2: Frase curta de contexto -->
+            <div class="bg-slate-50 border border-slate-200/60 rounded-xl p-3.5 text-slate-700 text-sm sm:text-base">
+                <span class="font-semibold text-slate-800">Contexto:</span> <span id="subject-context">A raquete é o equipamento principal que você segura com a mão para rebater a bolinha na mesa.</span>
+            </div>
+
+            <!-- Element 3: Campo do parceiro de conversa simulado -->
+            <div id="partner-box" class="bg-sky-50 border border-sky-200 rounded-xl p-3.5 text-sky-900 text-sm">
+                <span id="partner-text" class="font-medium">Lucas está olhando a raquete com você.</span>
+            </div>
+
+            <!-- Element 4: Frase-modelo (ou instrução de generalização) -->
+            <div id="model-phrase-container" class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 transition-all">
+                <div id="model-label" class="text-xs font-semibold text-indigo-700 uppercase tracking-wide mb-1">O que você pode dizer</div>
+                <div id="model-phrase-display" class="text-base sm:text-lg font-medium text-indigo-950">eu prefiro a borracha lisa</div>
+            </div>
+
+            <!-- Element 5: Área de resposta (Modo Toque ou Modo Voz) -->
+            <div id="response-area" class="flex flex-col gap-4">
+                <!-- Touch Mode Response Area -->
+                <div id="touch-response-section" class="flex flex-col gap-3">
+                    <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Monte sua resposta tocando nas palavras:</div>
+                    <div id="assembled-sentence-box" class="min-h-[56px] bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl p-3 flex flex-wrap items-center gap-2">
+                        <span id="empty-assembly-placeholder" class="text-sm text-slate-400 italic">Toque nas palavras abaixo na ordem correta...</span>
+                    </div>
+                    <!-- Controls Tray for Touch -->
+                    <div class="flex flex-wrap gap-2 items-center justify-between pt-1">
+                        <div class="flex flex-wrap gap-2" id="tray-words-container">
+                            <!-- Words generated dynamically -->
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="undoWord()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3.5 py-2 rounded-xl text-xs touch-target border border-slate-200">Desfazer</button>
+                            <button onclick="clearAssembly()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3.5 py-2 rounded-xl text-xs touch-target border border-slate-200">Limpar</button>
+                            <button onclick="restartCurrentSubject()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3.5 py-2 rounded-xl text-xs touch-target border border-slate-200">Recomeçar este assunto</button>
+                            <button onclick="speakCurrentSentence()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-3.5 py-2 rounded-xl text-xs touch-target border border-indigo-200">Falar a frase</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="submitTouchResponse()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm touch-target">
+                            Enviar resposta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Voice Mode Response Area -->
+                <div id="voice-response-section" class="hidden flex flex-col gap-3">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                        <div>
+                            <div class="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1">Palavras do assunto (apoio visual):</div>
+                            <div id="voice-tray-words-container" class="flex flex-wrap gap-1.5 text-sm text-slate-600">
+                                <!-- Non-clickable helper words -->
+                            </div>
+                        </div>
+                        <button id="mic-toggle-btn" onclick="toggleVoiceRecognition()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl text-sm shadow-sm flex items-center gap-2 touch-target shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                            <span id="mic-btn-text">Falar</span>
+                        </button>
+                    </div>
+                    <!-- Transcription Display -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col gap-2">
+                        <div class="text-xs font-semibold text-slate-500 uppercase">O que o navegador ouviu:</div>
+                        <div id="speech-transcript-display" class="text-base font-medium text-slate-800 italic min-h-[32px]">Aguardando sua fala...</div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                            <span id="voice-helper-guidance" class="text-xs text-slate-600">Se a fala não estiver sendo reconhecida, toque em Alternar para Tocar e continue a atividade pelo toque.</span>
+                            <button onclick="discardVoiceAttempt()" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold px-3 py-1.5 rounded-lg touch-target">
+                                Não foi isso que eu disse
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Area & Next Subject Button -->
+            <div id="feedback-container" class="hidden flex flex-col gap-4 pt-4 border-t border-slate-100">
+                <div id="feedback-message-box" class="p-4 rounded-xl text-sm font-medium"></div>
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <button id="why-not-counted-btn" onclick="toggleWhyNotCountedModal()" class="hidden text-xs text-indigo-600 hover:text-indigo-800 underline font-semibold touch-target">
+                        Por que não contou?
+                    </button>
+                    <button id="next-subject-btn" onclick="proceedToNextSubject()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-sm touch-target">
+                        Próximo assunto
+                    </button>
+                </div>
+
+                <!-- Quadro "Por que não contou?" (Inside the page, never overlay) -->
+                <div id="why-not-counted-box" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-700 flex flex-col gap-2">
+                    <div class="font-semibold text-slate-900 border-b border-slate-200 pb-1">Quadro explicativo:</div>
+                    <div><span class="font-medium text-slate-600">O que o aplicativo recebeu:</span> <span id="why-received-text"></span></div>
+                    <div id="why-model-row"><span class="font-medium text-slate-600">A frase-modelo completa:</span> <span id="why-model-text"></span></div>
+                    <div><span class="font-medium text-slate-600">Instrução:</span> <span id="why-instruction-text"></span></div>
+                </div>
+            </div>
+
+            <!-- Element 6: Lista do nível (8 assuntos na ordem exata com marcas de concluído e destaque atual) -->
+            <div class="border-t border-slate-100 pt-4">
+                <div class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2.5">Progresso dos 8 assuntos do nível atual:</div>
+                <div id="level-subjects-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Element 7: Nível atual e o que falta para subir -->
+            <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs text-indigo-900 font-medium">
+                <span id="level-status-description">Nível atual 1: a frase-modelo aparece inteira nos seis assuntos.</span>
+                <span id="level-remaining-count">Faltam 6 assuntos para concluir o nível.</span>
+            </div>
+
+        </div>
+
     </main>
 
-    <footer>
-        O modo por voz precisa de internet e de permissão de microfone, e pode não funcionar com o arquivo aberto diretamente do disco.
+    <footer class="w-full max-w-4xl mx-auto mt-8 flex flex-col gap-4 text-center text-xs text-slate-500 border-t border-slate-200 pt-4">
+        <p>O modo por voz precisa de internet e de permissão de microfone, e pode não funcionar com o arquivo aberto diretamente do disco.</p>
+        
+        <!-- Provisional Test Mode Bar -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-2">
+            <button onclick="toggleTestModePanel()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-3 py-1.5 rounded-lg touch-target">
+                Modo de teste
+            </button>
+        </div>
+        <div id="test-mode-panel" class="hidden bg-slate-100 border border-slate-300 rounded-xl p-3 flex flex-wrap justify-center items-center gap-2">
+            <span class="font-semibold text-slate-700 mr-2">Pular para:</span>
+            <button onclick="jumpToLevel(1)" class="bg-white border border-slate-300 hover:bg-slate-50 px-2.5 py-1 rounded text-xs font-semibold touch-target">Nível 1</button>
+            <button onclick="jumpToLevel(2)" class="bg-white border border-slate-300 hover:bg-slate-50 px-2.5 py-1 rounded text-xs font-semibold touch-target">Nível 2</button>
+            <button onclick="jumpToLevel(3)" class="bg-white border border-slate-300 hover:bg-slate-50 px-2.5 py-1 rounded text-xs font-semibold touch-target">Nível 3</button>
+            <button onclick="jumpToLevel(4)" class="bg-white border border-slate-300 hover:bg-slate-50 px-2.5 py-1 rounded text-xs font-semibold touch-target">Nível 4</button>
+            <button onclick="jumpToLevel(5)" class="bg-white border border-slate-300 hover:bg-slate-50 px-2.5 py-1 rounded text-xs font-semibold touch-target">Nível 5</button>
+            <button onclick="jumpToLevel(6)" class="bg-white border border-slate-300 hover:bg-slate-50 px-2.5 py-1 rounded text-xs font-semibold touch-target">Nível 6</button>
+            <button onclick="jumpToLevel(7)" class="bg-white border border-slate-300 hover:bg-slate-50 px-2.5 py-1 rounded text-xs font-semibold touch-target">Nível 7</button>
+            <button onclick="jumpToLevel(8)" class="bg-white border border-slate-300 hover:bg-slate-50 px-2.5 py-1 rounded text-xs font-semibold touch-target">Nível 8</button>
+            <button onclick="testConcludeSubject()" class="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold touch-target ml-2">Concluir assunto</button>
+        </div>
     </footer>
-</div>
 
-<!-- Level Up / Completion Modals container -->
-<div id="modalContainer"></div>
+    <script>
+        
+        // 6 Main Subjects
+        const mainSubjects = [
+            {
+                id: 'raquete',
+                name: 'A raquete',
+                context: 'A raquete é o equipamento principal que você segura com a mão para rebater a bolinha na mesa.',
+                modelPhrase: 'eu prefiro a borracha lisa',
+                blankWord: 'lisa',
+                blankType: 'adjetivo',
+                complements: ['lisa', 'rápida', 'nova'],
+                distractors: ['jogar', 'mesa'],
+                partnerComments: [
+                    'Sempre acho importante escolher uma boa borracha para o estilo de cada jogador.',
+                    'Conheço pessoas que gostam bastante de testar diferentes tipos de raquete.',
+                    'O toque na bola muda bastante dependendo da borracha escolhida.'
+                ]
+            },
+            {
+                id: 'bolinha',
+                name: 'A bolinha',
+                context: 'A bolinha oficial de tênis de mesa é feita de celulóide ou plástico e quica na mesa.',
+                modelPhrase: 'eu gosto de jogar com a bolinha branca',
+                blankWord: 'branca',
+                blankType: 'adjetivo',
+                complements: ['branca', 'leve', 'nova'],
+                distractors: ['bater', 'rede'],
+                partnerComments: [
+                    'A cor da bolinha ajuda a gente a enxergar melhor durante a troca de tiros.',
+                    'Sempre verificamos se a bolinha está perfeita antes de começar a partida.',
+                    'O quique da bolinha depende muito da qualidade do material dela.'
+                ]
+            },
+            {
+                id: 'rede',
+                name: 'A rede',
+                context: 'A rede divide a mesa de tênis de mesa ao meio e fica presa por dois suportes nas laterais.',
+                modelPhrase: 'essa rede me parece um pouco baixa',
+                blankWord: 'baixa',
+                blankType: 'adjetivo',
+                complements: ['baixa', 'firme', 'boa'],
+                distractors: ['jogar', 'mesa'],
+                partnerComments: [
+                    'Ajustar bem a altura da rede é essencial para o jogo seguir sem interrupções.',
+                    'Os suportes da rede precisam ficar bem firmes nas bordas da mesa.',
+                    'Sempre conferimos a tensão da rede antes de iniciar os saques.'
+                ]
+            },
+            {
+                id: 'mesa',
+                name: 'A mesa',
+                context: 'A mesa de tênis de mesa tem uma superfície de jogo retangular e escura com linhas brancas.',
+                modelPhrase: 'eu acho a mesa muito boa para jogar',
+                blankWord: 'jogar',
+                blankType: 'verbo',
+                complements: ['jogar', 'treinar', 'competir'],
+                distractors: ['rapidamente', 'muito'],
+                partnerComments: [
+                    'Uma boa mesa oferece o quique uniforme para a bolinha em qualquer ponto.',
+                    'A cor escura da mesa evita reflexos incômodos da luz do ambiente.',
+                    'Manter a superfície limpa ajuda bastante na hora das partidas.'
+                ]
+            },
+            {
+                id: 'regra',
+                name: 'Uma regra do jogo',
+                context: 'As regras do tênis de mesa definem como o saque, a contagem de pontos e a troca de lados funcionam.',
+                modelPhrase: 'eu acho o saque curto mais difícil',
+                blankWord: 'difícil',
+                blankType: 'adjetivo',
+                complements: ['difícil', 'legal', 'simples'],
+                distractors: ['partida', 'quadra'],
+                partnerComments: [
+                    'Conhecer bem as regras deixa a partida muito mais dinâmica e justa.',
+                    'Cada detalhe na hora do saque exige bastante atenção dos dois jogadores.',
+                    'As regras oficiais garantem que todos joguem com os mesmos critérios.'
+                ]
+            },
+            {
+                id: 'destaque',
+                name: 'Um destaque do tênis de mesa brasileiro',
+                context: 'O Brasil possui atletas de alto nível que disputam campeonatos internacionais e olimpíadas.',
+                modelPhrase: 'eu acho o Hugo Calderano muito rápido',
+                blankWord: 'rápido',
+                blankType: 'adjetivo',
+                complements: ['rápido', 'forte', 'agente'],
+                distractors: ['jogar', 'mesa'],
+                partnerComments: [
+                    'Ver atletas brasileiros competindo no circuito mundial inspira muita gente.',
+                    'A dedicação nos treinamentos diários faz toda a diferença para chegar ao topo.',
+                    'O estilo de jogo dos nossos atletas é reconhecido no mundo inteiro.'
+                ]
+            }
+        ];
 
-<script>
-// Application Data & Constants
-const SUBJECTS = [
-    {
-        id: 'raquete',
-        name: 'A raquete',
-        context: 'Equipamento essencial para bater na bolinha.',
-        partner: 'comprei uma raquete nova, mas não entendo nada de borracha.',
-        model: 'eu prefiro a borracha lisa',
-        keywords: ['raquete', 'borracha', 'lisa', 'rápida', 'nova', 'espuma', 'cabo']
-    },
-    {
-        id: 'bolinha',
-        name: 'A bolinha',
-        context: 'Pequena esfera usada nas partidas.',
-        partner: 'gosto de treinar com várias cores diferentes.',
-        model: 'eu gosto de jogar com a bolinha branca',
-        keywords: ['bolinha', 'bola', 'branca', 'jogar', 'cor', 'treinar']
-    },
-    {
-        id: 'rede',
-        name: 'A rede',
-        context: 'Divide a mesa ao meio.',
-        partner: 'esta rede parece um pouco estranha hoje.',
-        model: 'a rede me parece um pouco baixa',
-        keywords: ['rede', 'baixa', 'alta', 'mesa', 'dividir', 'altura']
-    },
-    {
-        id: 'mesa',
-        name: 'A mesa',
-        context: 'Superfície onde o jogo acontece.',
-        partner: 'treinar nesta mesa é sempre muito divertido.',
-        model: 'eu acho a mesa muito boa para jogar',
-        keywords: ['mesa', 'boa', 'jogar', 'superfície', 'treinar']
-    },
-    {
-        id: 'regra',
-        name: 'Uma regra do jogo',
-        context: 'Normas que organizam a partida.',
-        partner: 'fiquei confuso com aquela regra do início do jogo.',
-        model: 'eu acho essa regra bem fácil de entender',
-        keywords: ['regra', 'fácil', 'entender', 'jogo', 'partida', 'início']
-    },
-    {
-        id: 'destaque',
-        name: 'Um destaque do tênis de mesa brasileiro',
-        context: 'Atletas que representam o país.',
-        partner: 'temos grandes atletas jogando internacionalmente.',
-        model: 'eu acho o Hugo Calderano muito rápido',
-        keywords: ['hugo', 'calderano', 'brasileiro', 'rápido', 'atleta', 'destaque']
-    }
-];
+        const generalizationObjects = [
+            { id: 'gen1', name: 'A capa da raquete', context: 'A capa protege a raquete contra poeira e batidas quando está guardada.', bandeja: ['capa', 'raquete', 'protege', 'guarda', 'bonita', 'nova', 'preta', 'boa'] },
+            { id: 'gen2', name: 'O cesto de bolinhas', context: 'O cesto armazena várias bolinhas para facilitar os treinos de saque e repetição.', bandeja: ['cesto', 'bolinhas', 'treino', 'várias', 'cheio', 'verde', 'muitas', 'ajuda'] },
+            { id: 'gen3', name: 'A toalha', context: 'A toalha serve para secar o suor durante as pausas rápidas da partida.', bandeja: ['toalha', 'suor', 'limpa', 'seca', 'azul', 'macia', 'usar', 'boa'] },
+            { id: 'gen4', name: 'A garrafa de água', context: 'A garrafa de água fica por perto para manter a hidratação entre os sets.', bandeja: ['garrafa', 'água', 'gelada', 'beber', 'sede', 'cheia', 'boa', 'ficar'] },
+            { id: 'gen5', name: 'O tubo de bolas', context: 'O tubo guarda as bolinhas extras com segurança na bolsa de acessórios.', bandeja: ['tubo', 'bolas', 'guardar', 'extras', 'plástico', 'longo', 'firme', 'bom'] },
+            { id: 'gen6', name: 'O marcador de placar', context: 'O marcador de placar de mesa mostra quantos pontos cada jogador marcou.', bandeja: ['marcador', 'placar', 'pontos', 'mesa', 'virar', 'números', 'fácil', 'bom'] },
+            { id: 'gen7', name: 'A raquete extra', context: 'A raquete extra fica de reserva caso aconteça algum imprevisto com a principal.', bandeja: ['raquete', 'extra', 'reserva', 'guardada', 'boa', 'nova', 'usar', 'ficar'] },
+            { id: 'gen8', name: 'A sacola de acessórios', context: 'A sacola de acessórios transporta borrachas, colas e pequenas ferramentas.', bandeja: ['sacola', 'acessórios', 'levar', 'muitos', 'itens', 'útil', 'boa', 'cheia'] },
+        ];
 
-const DRACTORS_POOL = ['correr', 'amanhã', 'porque', 'muito', 'depois', 'rapidamente', 'ontem', 'mas', 'embora'];
-const COMPLEMENTS_POOL = {
-    'raquete': ['lisa', 'rápida', 'nova'],
-    'bolinha': ['branca', 'amarela', 'nova'],
-    'rede': ['baixa', 'alta', 'boa'],
-    'mesa': ['boa', 'larga', 'rápida'],
-    'regra': ['fácil', 'simples', 'boa'],
-    'destaque': ['rápido', 'forte', 'bom']
-};
-
-class SpeechTrainerApp {
-    constructor() {
-        this.state = this.loadState() || {
-            level: 1,
-            currentSubjectIndex: 0,
-            completedSubjects: [],
+        let state = {
+            currentLevel: 1,
+            subjectIndex: 0, // 0 to 7 in the level sequence (6 main + 2 extras)
             mode: 'touch', // 'touch' or 'voice'
-            selectedWords: [],
-            lastTranscript: '',
-            lastResultType: null, // 'A', 'B', 'C'
-            lastFeedbackMessage: '',
-            voiceAttemptDiscardedCount: 0,
-            totalTouchCount: 0,
-            totalVoiceCount: 0,
-            consecutiveVoiceFailures: 0,
-            showWhyModal: false
+            score: 0,
+            consecutiveNoHintCount: 0,
+            touchAssembledWords: [],
+            isVoiceActive: false,
+            transcript: '',
+            voiceAttemptCount: 0,
+            discardedVoiceCount: 0,
+            touchCount: 0,
+            voiceCount: 0,
+            levelStartTime: Date.now(),
+            levelDurations: {}, // level -> seconds
+            responsesLog: [], // list of response objects
+            level5678Sorts: {}, // level -> array of 2 or 4 or 1 subject ids with model phrase
+            hintTimeout: null,
+            hintShown: false,
+            testModeActive: false,
+            completedSubjectsPerLevel: {}, // level -> set or array of completed subject ids
+            activePartnerComment: ''
         };
 
-        this.recognition = null;
-        this.isRecording = false;
-        this.initSpeechRecognition();
-        this.render();
-    }
-
-    loadState() {
-        try {
-            const saved = localStorage.getItem('tableTennisTrainerState');
-            return saved ? JSON.parse(saved) : null;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    saveState() {
-        try {
-            localStorage.setItem('tableTennisTrainerState', JSON.stringify(this.state));
-        } catch (e) {}
-    }
-
-    resetAll() {
-        if (confirm('Tem certeza de que deseja reiniciar todo o treino?')) {
-            localStorage.removeItem('tableTennisTrainerState');
-            this.state = {
-                level: 1,
-                currentSubjectIndex: 0,
-                completedSubjects: [],
-                mode: 'touch',
-                selectedWords: [],
-                lastTranscript: '',
-                lastResultType: null,
-                lastFeedbackMessage: '',
-                voiceAttemptDiscardedCount: 0,
-                totalTouchCount: 0,
-                totalVoiceCount: 0,
-                consecutiveVoiceFailures: 0,
-                showWhyModal: false
-            };
-            this.render();
-        }
-    }
-
-    setMode(mode) {
-        this.state.mode = mode;
-        this.state.selectedWords = [];
-        this.state.lastTranscript = '';
-        this.saveState();
-        this.render();
-    }
-
-    initSpeechRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            this.recognition = new SpeechRecognition();
-            this.recognition.lang = 'pt-BR';
-            this.recognition.continuous = false;
-            this.recognition.interimResults = false;
-
-            this.recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                this.state.lastTranscript = transcript;
-                this.isRecording = false;
-                this.processVoiceResponse(transcript);
-            };
-
-            this.recognition.onerror = (event) => {
-                this.isRecording = false;
-                this.render();
-            };
-
-            this.recognition.onend = () => {
-                this.isRecording = false;
-                this.render();
-            };
-        }
-    }
-
-    toggleRecord() {
-        if (!this.recognition) {
-            alert('Reconhecimento de fala não suportado neste navegador. Alternando para o modo por toque.');
-            this.setMode('touch');
-            return;
+        // Load persisted state if exists
+        function loadPersistedState() {
+            const saved = localStorage.getItem('tt_training_state_v1');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                } catch (e) {
+                    console.error('Error loading saved state', e);
+                }
+            }
         }
 
-        if (this.isRecording) {
-            this.recognition.stop();
-            this.isRecording = false;
-        } else {
+        function savePersistedState() {
+            localStorage.setItem('tt_training_state_v1', JSON.stringify(state));
+        }
+
+        // Sequence of 8 items per level: [main0, main1, main2, extraX, main3, main4, main5, extraY]
+        function getLevelSequence(level) {
+            // Pick 2 extras based on level rotation
+            const extra1Idx = (level - 1) * 2 % generalizationObjects.length;
+            const extra2Idx = ((level - 1) * 2 + 1) % generalizationObjects.length;
+            
+            return [
+                { type: 'main', index: 0, obj: mainSubjects[0] },
+                { type: 'main', index: 1, obj: mainSubjects[1] },
+                { type: 'main', index: 2, obj: mainSubjects[2] },
+                { type: 'extra', index: extra1Idx, obj: generalizationObjects[extra1Idx] },
+                { type: 'main', index: 3, obj: mainSubjects[3] },
+                { type: 'main', index: 4, obj: mainSubjects[4] },
+                { type: 'main', index: 5, obj: mainSubjects[5] },
+                { type: 'extra', index: extra2Idx, obj: generalizationObjects[extra2Idx] }
+            ];
+        }
+
+        // Get sorted subjects for levels 5, 6, 7
+        function getLevelModelSubjects(level) {
+            if (level === 1 || level === 2 || level === 3 || level === 4) {
+                return mainSubjects.map(s => s.id); // all 6
+            }
+            if (level === 8) {
+                return []; // none
+            }
+            // Levels 5, 6, 7 need randomized subsets sorted upon entering level
+            if (!state.level5678Sorts[level]) {
+                let count = 4; // level 5
+                if (level === 6) count = 2;
+                if (level === 7) count = 1;
+                
+                let shuffled = [...mainSubjects].sort(() => 0.5 - Math.random());
+                state.level5678Sorts[level] = shuffled.slice(0, count).map(s => s.id);
+                savePersistedState();
+            }
+            return state.level5678Sorts[level];
+        }
+
+        function getCurrentSubjectItem() {
+            const seq = getLevelSequence(state.currentLevel);
+            return seq[state.subjectIndex];
+        }
+
+        window.onload = function() {
+            loadPersistedState();
+            initLevelStart();
+            renderApp();
+        };
+
+        function initLevelStart() {
+            if (!state.levelDurations[state.currentLevel]) {
+                state.levelDurations[state.currentLevel] = Date.now();
+            }
+            if (!state.completedSubjectsPerLevel[state.currentLevel]) {
+                state.completedSubjectsPerLevel[state.currentLevel] = [];
+            }
+            // Set partner comment if not set
+            const item = getCurrentSubjectItem();
+            if (item.type === 'main') {
+                const comments = item.obj.partnerComments;
+                state.activePartnerComment = comments[Math.floor(Math.random() * comments.length)];
+            }
+        }
+
+        function switchMode(newMode) {
+            state.mode = newMode;
+            renderApp();
+        }
+
+        function renderApp() {
+            // Update Score & Level header
+            document.getElementById('score-display').innerText = state.score;
+            document.getElementById('level-title-indicator').innerText = `Nível ${state.currentLevel} de 8`;
+            
+            // Update level bars
+            for (let i = 1; i <= 8; i++) {
+                const bar = document.getElementById(`lvl-bar-${i}`);
+                if (i < state.currentLevel) {
+                    bar.className = 'bg-emerald-500 rounded-md transition-all';
+                } else if (i === state.currentLevel) {
+                    bar.className = 'bg-indigo-600 rounded-md transition-all';
+                } else {
+                    bar.className = 'bg-slate-200 rounded-md transition-all';
+                }
+            }
+
+            const seq = getLevelSequence(state.currentLevel);
+            const completedList = state.completedSubjectsPerLevel[state.currentLevel] || [];
+            document.getElementById('level-progress-count').innerText = `Assuntos concluídos: ${completedList.length}/8`;
+
+            // Render subjects list
+            const listContainer = document.getElementById('level-subjects-list');
+            listContainer.innerHTML = '';
+            seq.forEach((seqItem, idx) => {
+                const isCompleted = completedList.includes(seqItem.obj.id);
+                const isCurrent = idx === state.subjectIndex;
+                const isExtra = seqItem.type === 'extra';
+                
+                const div = document.createElement('div');
+                div.className = `p-2.5 rounded-xl border text-xs font-medium flex items-center justify-between ${
+                    isCurrent ? 'bg-indigo-50 border-indigo-300 text-indigo-900 ring-2 ring-indigo-500/20' : 
+                    isCompleted ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-700'
+                }`;
+                div.innerHTML = `
+                    <span class="truncate">${seqItem.obj.name} ${isExtra ? '(extra)' : ''}</span>
+                    <span>${isCompleted ? '✓' : isCurrent ? '●' : '○'}</span>
+                `;
+                listContainer.appendChild(div);
+            });
+
+            // Current subject item
+            const currentItem = getCurrentSubjectItem();
+            document.getElementById('subject-badge').innerText = `Assunto ${state.subjectIndex + 1} de 8`;
+            document.getElementById('subject-name').innerText = currentItem.obj.name;
+            document.getElementById('subject-context').innerText = currentItem.obj.context;
+
+            const extraBadge = document.getElementById('extra-badge');
+            const modelContainer = document.getElementById('model-phrase-container');
+            const partnerText = document.getElementById('partner-text');
+
+            if (currentItem.type === 'extra') {
+                extraBadge.classList.remove('hidden');
+                modelContainer.classList.add('hidden');
+                partnerText.innerText = `${currentItem.obj.name} está na mesa com você.`;
+            } else {
+                extraBadge.classList.add('hidden');
+                modelContainer.classList.remove('hidden');
+                partnerText.innerText = `Lucas está olhando ${currentItem.obj.name.toLowerCase()} com você.`;
+
+                // Render model phrase based on fading rules
+                renderFadedModelPhrase(currentItem.obj);
+            }
+
+            // Mode switching visibility
+            const touchSec = document.getElementById('touch-response-section');
+            const voiceSec = document.getElementById('voice-response-section');
+            const touchBtn = document.getElementById('mode-touch-btn');
+            const voiceBtn = document.getElementById('mode-voice-btn');
+
+            if (state.mode === 'touch') {
+                touchSec.classList.remove('hidden');
+                voiceSec.classList.add('hidden');
+                touchBtn.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-white text-indigo-700 shadow-sm touch-target';
+                voiceBtn.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 touch-target';
+                renderTouchTray(currentItem);
+            } else {
+                touchSec.classList.add('hidden');
+                voiceSec.classList.remove('hidden');
+                voiceBtn.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-white text-indigo-700 shadow-sm touch-target';
+                touchBtn.className = 'flex-1 sm:flex-initial px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 touch-target';
+                renderVoiceTray(currentItem);
+            }
+
+            // Level status description
+            updateLevelStatusDescription();
+
+            // Setup 30s hint timer for Level 1
+            setupHintTimer();
+        }
+
+        function renderFadedModelPhrase(subjectObj) {
+            const display = document.getElementById('model-phrase-display');
+            const container = document.getElementById('model-phrase-container');
+            
+            // Alternating alignment per level: 1:left, 2:center, 3:right, 4:left, etc.
+            const alignments = ['text-left', 'text-center', 'text-right'];
+            const alignClass = alignments[(state.currentLevel - 1) % alignments.length];
+            container.className = `bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 transition-all ${alignClass}`;
+
+            const words = subjectObj.modelPhrase.split(' ');
+            const modelSubjects = getLevelModelSubjects(state.currentLevel);
+            const hasModel = modelSubjects.includes(subjectObj.id);
+
+            if (state.currentLevel === 1) {
+                display.innerText = subjectObj.modelPhrase;
+            } else if (state.currentLevel === 2) {
+                // without last word + lacuna dash
+                let faded = words.slice(0, words.length - 1).join(' ') + ' ____';
+                display.innerText = faded;
+            } else if (state.currentLevel === 3) {
+                // without last 2 words + 2 dashes
+                let faded = words.slice(0, words.length - 2).join(' ') + ' ____ ____';
+                display.innerText = faded;
+            } else if (state.currentLevel === 4) {
+                // only first word + dashes for rest
+                let dashes = words.slice(1).map(() => '____').join(' ');
+                display.innerText = words[0] + ' ' + dashes;
+            } else if (state.currentLevel >= 5 && state.currentLevel <= 7) {
+                if (hasModel) {
+                    display.innerText = words[0] + ' ' + words.slice(1).map(() => '____').join(' ');
+                } else {
+                    display.innerText = '(Nenhuma frase-modelo exibida neste assunto)';
+                }
+            } else if (state.currentLevel === 8) {
+                display.innerText = '(Nenhuma frase-modelo exibida no nível 8)';
+            }
+        }
+
+        function updateLevelStatusDescription() {
+            const desc = document.getElementById('level-status-description');
+            const completedCount = (state.completedSubjectsPerLevel[state.currentLevel] || []).length;
+            const remaining = 8 - completedCount;
+            document.getElementById('level-remaining-count').innerText = `Faltam ${remaining} assuntos para concluir o nível.`;
+
+            const texts = {
+                1: "Nível 1: a frase-modelo aparece inteira nos seis assuntos.",
+                2: "Nível 2: sem a última palavra da frase-modelo.",
+                3: "Nível 3: sem as duas últimas palavras.",
+                4: "Nível 4: só a primeira palavra, em todos os assuntos.",
+                5: "Nível 5: só a primeira palavra em quatro assuntos sorteados.",
+                6: "Nível 6: só a primeira palavra em dois assuntos sorteados.",
+                7: "Nível 7: só a primeira palavra em um assunto sorteado.",
+                8: "Nível 8: nenhum assunto exibe frase-modelo."
+            };
+            desc.innerText = texts[state.currentLevel] || "";
+        }
+
+        let touchSelectedWords = [];
+        let shuffledTrayWords = [];
+
+        function renderTouchTray(currentItem) {
+            const trayContainer = document.getElementById('tray-words-container');
+            trayContainer.innerHTML = '';
+
+            // Generate tray words if not already shuffled for this subject item
+            if (!currentItem._shuffledTray || currentItem._shuffledTrayLevel !== state.currentLevel) {
+                let trayPool = [];
+                if (currentItem.type === 'main') {
+                    // All words of model phrase except blank word
+                    const phraseWords = currentItem.obj.modelPhrase.split(' ');
+                    const blank = currentItem.obj.blankWord;
+                    // remove one instance of blank word if present in phrase, or construct tray from complements
+                    let modelWithoutBlank = phraseWords.filter(w => w !== blank);
+                    
+                    // Complements (3 items: word, complement 2, complement 3)
+                    const comps = currentItem.obj.complements;
+                    // Distractors (2 items)
+                    const distrs = currentItem.obj.distractors;
+
+                    // Tray must contain phrase words (minus blank), complements, and distractors
+                    // Rule 6: tray contains all words of model-phrase minus blank, plus 3 complements and 2 distractors, shuffled without duplicates
+                    let combined = [...modelWithoutBlank];
+                    // Add complements and distractors ensuring uniqueness
+                    comps.forEach(c => { if (!combined.includes(c)) combined.push(c); });
+                    distrs.forEach(d => { if (!combined.includes(d)) combined.push(d); });
+
+                    // Shuffle
+                    shuffledTrayWords = combined.sort(() => 0.5 - Math.random());
+                } else {
+                    // Extra object bandeja
+                    shuffledTrayWords = [...currentItem.obj.bandeja].sort(() => 0.5 - Math.random());
+                }
+                currentItem._shuffledTray = shuffledTrayWords;
+                currentItem._shuffledTrayLevel = state.currentLevel;
+            } else {
+                shuffledTrayWords = currentItem._shuffledTray;
+            }
+
+            // Render tray buttons
+            shuffledTrayWords.forEach((word, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-medium px-3.5 py-2 rounded-xl text-xs touch-target shadow-sm transition-all';
+                btn.innerText = word;
+                btn.onclick = () => selectWordForAssembly(word, idx);
+                trayContainer.appendChild(btn);
+            });
+
+            renderAssembledBox();
+        }
+
+        function selectWordForAssembly(word, trayIdx) {
+            touchSelectedWords.push(word);
+            renderAssembledBox();
+        }
+
+        function renderAssembledBox() {
+            const box = document.getElementById('assembled-sentence-box');
+            box.innerHTML = '';
+
+            if (touchSelectedWords.length === 0) {
+                box.innerHTML = '<span class="text-sm text-slate-400 italic">Toque nas palavras abaixo na ordem correta...</span>';
+                return;
+            }
+
+            touchSelectedWords.forEach((word, idx) => {
+                const span = document.createElement('span');
+                span.className = 'bg-indigo-50 border border-indigo-200 text-indigo-900 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 cursor-pointer hover:bg-indigo-100 transition-all';
+                span.innerHTML = `${word} <span class="text-indigo-400 text-xs">×</span>`;
+                span.onclick = () => {
+                    touchSelectedWords.splice(idx, 1);
+                    renderAssembledBox();
+                };
+                box.appendChild(span);
+            });
+        }
+
+        function undoWord() {
+            if (touchSelectedWords.length > 0) {
+                touchSelectedWords.pop();
+                renderAssembledBox();
+            }
+        }
+
+        function clearAssembly() {
+            touchSelectedWords = [];
+            renderAssembledBox();
+        }
+
+        function restartCurrentSubject() {
+            touchSelectedWords = [];
+            renderAssembledBox();
+            hideFeedback();
+        }
+
+        function speakCurrentSentence() {
+            const text = touchSelectedWords.join(' ');
+            if (!text) return;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        let recognition = null;
+
+        function renderVoiceTray(currentItem) {
+            const trayContainer = document.getElementById('voice-tray-words-container');
+            trayContainer.innerHTML = '';
+
+            let words = [];
+            if (currentItem.type === 'main') {
+                words = currentItem.obj.modelPhrase.split(' ');
+            } else {
+                words = currentItem.obj.bandeja;
+            }
+
+            words.forEach(w => {
+                const span = document.createElement('span');
+                span.className = 'bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-xs font-medium text-slate-700';
+                span.innerText = w;
+                trayContainer.appendChild(span);
+            });
+        }
+
+        function toggleVoiceRecognition() {
+            if (state.isVoiceActive) {
+                stopVoiceRecognition();
+            } else {
+                startVoiceRecognition();
+            }
+        }
+
+        function startVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alertUserFallbackToTouch("O navegador não suporta reconhecimento de fala. Retornando ao modo por toque.");
+                return;
+            }
+
             try {
-                this.state.lastTranscript = '';
-                this.recognition.start();
-                this.isRecording = true;
+                recognition = new SpeechRecognition();
+                recognition.lang = 'pt-BR';
+                recognition.continuous = false;
+                recognition.interimResults = true;
+
+                recognition.onstart = () => {
+                    state.isVoiceActive = true;
+                    document.getElementById('mic-toggle-btn').className = 'bg-rose-600 hover:bg-rose-700 text-white font-semibold px-5 py-3 rounded-xl text-sm shadow-sm flex items-center gap-2 touch-target shrink-0 animate-pulse';
+                    document.getElementById('mic-btn-text').innerText = 'Ouvindo...';
+                };
+
+                recognition.onresult = (event) => {
+                    let interim = '';
+                    let final = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            final += event.results[i][0].transcript;
+                        } else {
+                            interim += event.results[i][0].transcript;
+                        }
+                    }
+                    const text = final || interim;
+                    state.transcript = text;
+                    document.getElementById('speech-transcript-display').innerText = text || 'Ouvindo...';
+                    
+                    if (final) {
+                        state.voiceAttemptCount++;
+                        processVoiceResponse(final.trim());
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error', event.error);
+                    stopVoiceRecognition();
+                    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                        alertUserFallbackToTouch("Permissão de microfone negada. Retornando ao modo por toque.");
+                    }
+                };
+
+                recognition.onend = () => {
+                    stopVoiceRecognition();
+                };
+
+                recognition.start();
             } catch (e) {
-                this.isRecording = false;
+                console.error(e);
+                alertUserFallbackToTouch("Falha ao iniciar reconhecimento de voz. Retornando ao modo por toque.");
             }
         }
-        this.render();
-    }
 
-    discardVoiceAttempt() {
-        this.state.voiceAttemptDiscardedCount++;
-        this.state.lastTranscript = '';
-        this.state.lastResultType = null;
-        this.state.lastFeedbackMessage = '';
-        this.saveState();
-        this.render();
-    }
-
-    getCurrentSubject() {
-        // Filter subjects that are active in this level
-        const activeSubjects = this.getActiveSubjectsForLevel();
-        const subId = activeSubjects[this.state.currentSubjectIndex];
-        return SUBJECTS.find(s => s.id === subId) || SUBJECTS[0];
-    }
-
-    getActiveSubjectsForLevel() {
-        // Levels 1-4: all 6 subjects
-        // Levels 5-6: 3 subjects, then 1 subject
-        // Level 7: all subjects or subset? Rule: Levels 5 & 6 use 3 and 1 subjects respectively. Let's map properly.
-        if (this.state.level === 5) return [SUBJECTS[0].id, SUBJECTS[1].id, SUBJECTS[2].id];
-        if (this.state.level === 6) return [SUBJECTS[0].id];
-        return SUBJECTS.map(s => s.id);
-    }
-
-    getModelParts(subject) {
-        const words = subject.model.split(' ');
-        const base = words.slice(0, words.length - 1).join(' ');
-        const gap = words[words.length - 1];
-        return { base, gap, full: subject.model, words };
-    }
-
-    getTrayWords(subject) {
-        const { words, gap } = this.getModelParts(subject);
-        const baseWords = words.slice(0, words.length - 1);
-        const distractors = ['correr', 'amanhã', 'porque'];
-        const complements = COMPLEMENTS_POOL[subject.id] || ['lisa', 'rápida', 'nova'];
-        
-        // Combine base words (excluding gap), complements, and distractors, then shuffle deterministically or stable
-        const tray = [...baseWords, ...complements, ...distractors];
-        // Simple deterministic shuffle based on subject id length to keep stability
-        return tray.sort((a, b) => a.localeCompare(b));
-    }
-
-    selectWord(word) {
-        this.state.selectedWords.push(word);
-        this.saveState();
-        this.render();
-    }
-
-    removeSelectedWord(index) {
-        this.state.selectedWords.splice(index, 1);
-        this.saveState();
-        this.render();
-    }
-
-    undoWord() {
-        this.state.selectedWords.pop();
-        this.saveState();
-        this.render();
-    }
-
-    clearWords() {
-        this.state.selectedWords = [];
-        this.saveState();
-        this.render();
-    }
-
-    restartSubject() {
-        this.state.selectedWords = [];
-        this.state.lastResultType = null;
-        this.state.lastFeedbackMessage = '';
-        this.saveState();
-        this.render();
-    }
-
-    speakCurrentPhrase() {
-        const subject = this.getCurrentSubject();
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(subject.model);
-            utterance.lang = 'pt-BR';
-            window.speechSynthesis.speak(utterance);
-        }
-    }
-
-    evaluateTouchResponse() {
-        this.state.totalTouchCount++;
-        const subject = this.getCurrentSubject();
-        const { words, gap } = this.getModelParts(subject);
-        const userSentence = this.state.selectedWords.join(' ');
-        const baseWords = words.slice(0, words.length - 1);
-        const userBaseWords = this.state.selectedWords.slice(0, baseWords.length);
-        const userGapWord = this.state.selectedWords[baseWords.length];
-
-        // Check if incomplete
-        if (this.state.selectedWords.length < words.length) {
-            this.state.lastResultType = 'C';
-            this.state.lastFeedbackMessage = 'A resposta está incompleta. Faltam palavras para formar a frase inteira.';
-            this.saveState();
-            this.render();
-            return;
+        function stopVoiceRecognition() {
+            state.isVoiceActive = false;
+            if (recognition) {
+                try { recognition.stop(); } catch(e){}
+            }
+            const btnText = document.getElementById('mic-btn-text');
+            if (btnText) btnText.innerText = 'Falar';
+            const micBtn = document.getElementById('mic-toggle-btn');
+            if (micBtn) micBtn.className = 'bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl text-sm shadow-sm flex items-center gap-2 touch-target shrink-0';
         }
 
-        // Check base correctness (ignoring articles/prepositions/conjunctions/pronouns minor differences if needed, or exact base match)
-        let baseMatch = true;
-        for (let i = 0; i < baseWords.length; i++) {
-            if (userBaseWords[i] !== baseWords[i]) {
-                // Check if it's a minor particle difference
-                const minorWords = ['o', 'a', 'os', 'as', 'um', 'uma', 'de', 'do', 'da', 'em', 'no', 'na', 'eu', 'que'];
-                if (!minorWords.includes(baseWords[i]) || !minorWords.includes(userBaseWords[i])) {
-                    baseMatch = false;
-                    break;
+        function discardVoiceAttempt() {
+            state.discardedVoiceCount++;
+            state.transcript = '';
+            document.getElementById('speech-transcript-display').innerText = 'Tentativa descartada. Fale novamente quando quiser.';
+            hideFeedback();
+        }
+
+        function alertUserFallbackToTouch(msg) {
+            state.mode = 'touch';
+            renderApp();
+            // Show inline banner notification
+            showInlineBanner(msg);
+        }
+
+        function showInlineBanner(msg) {
+            const banner = document.getElementById('level-notice-banner');
+            document.getElementById('level-notice-title').innerText = 'Aviso de Navegação';
+            document.getElementById('level-notice-desc').innerText = msg;
+            banner.classList.remove('hidden');
+        }
+
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        const functionalWords = new Set([
+            'o', 'a', 'os', 'as', 'um', 'uma', 'de', 'do', 'da', 'em', 'no', 'na', 'por', 'para', 'com', 
+            'e', 'ou', 'mas', 'que', 'se', 'eu', 'me', 'voce', 'ele', 'ela', 'essa', 'esse', 'esta', 'este', 
+            'isso', 'minha', 'meu'
+        ]);
+
+        function getContentWords(phrase) {
+            const norm = normalizeText(phrase);
+            const words = norm.split(' ');
+            return words.filter(w => !functionalWords.has(w));
+        }
+
+        function submitTouchResponse() {
+            const item = getCurrentSubjectItem();
+            const assembled = touchSelectedWords.join(' ');
+            state.touchCount++;
+            evaluateResponse(assembled, 'touch', item);
+        }
+
+        function processVoiceResponse(spokenText) {
+            state.voiceCount++;
+            const item = getCurrentSubjectItem();
+            evaluateResponse(spokenText, 'voice', item);
+        }
+
+        function evaluateResponse(responseText, mode, item) {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            let classification = '';
+            let isConcluded = false;
+            let feedbackType = ''; // 'A', 'B', 'generalization', 'C'
+
+            if (item.type === 'extra') {
+                // Extra generalization rule: any response with >= 4 words
+                const wordCount = responseText.split(' ').length;
+                if (wordCount >= 4) {
+                    classification = 'generalization';
+                    isConcluded = true;
+                    feedbackType = 'generalization';
+                } else {
+                    classification = 'nao_contou';
+                    isConcluded = false;
+                    feedbackType = 'C';
+                }
+            } else {
+                // Main subject evaluation
+                const modelPhrase = item.obj.modelPhrase;
+                const modelContentWords = getContentWords(modelPhrase);
+                const respContentWords = getContentWords(responseText);
+
+                if (mode === 'touch') {
+                    // Touch evaluation steps (Item 9)
+                    // Step 1 & 2: normalized and without functional words
+                    const modelBaseContent = modelContentWords.slice(0, modelContentWords.length - 1); // base of content
+                    const respBaseContent = respContentWords.slice(0, respContentWords.length - 1);
+                    const respBlankWord = respContentWords[respContentWords.length - 1];
+                    const modelBlankWord = modelContentWords[modelContentWords.length - 1];
+
+                    // Check if base matches and blank is one of the 3 complements (model blank or complement 2 or 3)
+                    let baseMatches = true;
+                    if (modelBaseContent.length !== respBaseContent.length) {
+                        baseMatches = false;
+                    } else {
+                        for (let i = 0; i < modelBaseContent.length; i++) {
+                            if (modelBaseContent[i] !== respBaseContent[i]) {
+                                baseMatches = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    const validComplements = item.obj.complements;
+                    const isComplementValid = validComplements.includes(respBlankWord) || validComplements.includes(responseText.split(' ').pop().toLowerCase());
+
+                    if (baseMatches && isComplementValid) {
+                        // Concludes! Check if (A) or (B)
+                        if (respBlankWord === modelBlankWord || normalizeText(responseText) === normalizeText(modelPhrase)) {
+                            classification = state.hintShown ? 'com_dica' : 'com_script';
+                        } else {
+                            classification = state.hintShown ? 'com_dica' : 'sem_script';
+                        }
+                        isConcluded = true;
+                        feedbackType = 'A_B';
+                    } else {
+                        // Case (C) - incomplete or wrong
+                        classification = 'nao_contou';
+                        isConcluded = false;
+                        feedbackType = 'C';
+                    }
+                } else {
+                    // Voice evaluation
+                    if (state.currentLevel === 1) {
+                        // Level 1 voice expects model phrase with tolerances
+                        const simScore = similarityRatio(normalizeText(responseText), normalizeText(modelPhrase));
+                        if (simScore >= 0.6 || hasContentOverlap(respContentWords, modelContentWords)) {
+                            classification = state.hintShown ? 'com_dica' : 'com_script';
+                            isConcluded = true;
+                            feedbackType = 'A_B';
+                        } else {
+                            classification = 'nao_contou';
+                            isConcluded = false;
+                            feedbackType = 'C';
+                        }
+                    } else {
+                        // Level 2 onwards voice: any phrase with >= 4 words and at least one subject keyword
+                        const wordCount = responseText.split(' ').length;
+                        const hasSubjectKw = hasSubjectKeyword(responseText, item.obj);
+                        if (wordCount >= 4 && hasSubjectKw) {
+                            // Check if matches model pattern for script vs without script
+                            if (hasContentOverlap(respContentWords, modelContentWords)) {
+                                classification = state.hintShown ? 'com_dica' : 'com_script';
+                            } else {
+                                classification = state.hintShown ? 'com_dica' : 'sem_script';
+                            }
+                            isConcluded = true;
+                            feedbackType = 'A_B';
+                        } else {
+                            classification = 'nao_contou';
+                            isConcluded = false;
+                            feedbackType = 'C';
+                        }
+                    }
                 }
             }
+
+            // Record response in log
+            state.responsesLog.push({
+                time: timeStr,
+                level: state.currentLevel,
+                subject: item.obj.name,
+                mode: mode,
+                response: responseText,
+                classification: classification,
+                isTest: state.testModeActive ? 'teste' : 'normal'
+            });
+
+            if (isConcluded) {
+                if (!state.hintShown && classification !== 'generalization') {
+                    state.score += 1;
+                    state.consecutiveNoHintCount++;
+                    if (state.consecutiveNoHintCount >= 10) {
+                        // hint disabled forever after 10 consecutive no-hint correct answers
+                        state.consecutiveNoHintCount = 10;
+                    }
+                }
+                // Mark as completed in current level
+                const completedList = state.completedSubjectsPerLevel[state.currentLevel];
+                if (!completedList.includes(item.obj.id)) {
+                    completedList.push(item.obj.id);
+                }
+                savePersistedState();
+
+                showPositiveFeedback(responseText, classification, item);
+            } else {
+                showCorrectionFeedback(responseText, mode, item);
+            }
+
+            savePersistedState();
         }
 
-        if (!baseMatch) {
-            this.state.lastResultType = 'C';
-            // Find divergence point
-            let divergenceWord = baseWords[0];
-            for (let i = 0; i < baseWords.length; i++) {
-                if (userBaseWords[i] !== baseWords[i]) {
-                    divergenceWord = baseWords[i];
-                    break;
+        function similarityRatio(str1, str2) {
+            const set1 = new Set(str1.split(' '));
+            const set2 = new Set(str2.split(' '));
+            let intersection = 0;
+            set1.forEach(w => { if (set2.has(w)) intersection++; });
+            return intersection / Math.max(set1.size, set2.size);
+        }
+
+        function hasContentOverlap(respContent, modelContent) {
+            let matches = 0;
+            respContent.forEach(w => {
+                if (modelContent.includes(w)) matches++;
+            });
+            return matches >= Math.min(2, modelContent.length);
+        }
+
+        function hasSubjectKeyword(text, subjectObj) {
+            const normText = normalizeText(text);
+            const nameWords = normalizeText(subjectObj.name).split(' ');
+            const modelWords = getContentWords(subjectObj.modelPhrase);
+            
+            for (let w of nameWords) {
+                if (normText.includes(w)) return true;
+            }
+            for (let w of modelWords) {
+                if (normText.includes(w)) return true;
+            }
+            return false;
+        }
+
+        function showPositiveFeedback(response, classification, item) {
+            const feedbackContainer = document.getElementById('feedback-container');
+            const msgBox = document.getElementById('feedback-message-box');
+            const whyBtn = document.getElementById('why-not-counted-btn');
+            whyBtn.classList.add('hidden');
+            feedbackContainer.classList.remove('hidden');
+
+            msgBox.className = 'p-4 rounded-xl text-sm font-medium bg-emerald-50 border border-emerald-200 text-emerald-900';
+            
+            let classText = '';
+            if (classification === 'com_script') {
+                classText = 'Contou como conversa com a frase-modelo.';
+            } else if (classification === 'sem_script' || classification === 'com_dica') {
+                classText = 'Contou como conversa com suas próprias palavras.';
+            } else if (classification === 'generalization') {
+                classText = 'Contou como interação de generalização.';
+            }
+
+            let partnerMsg = item.type === 'main' ? `<div class="mt-2 text-sky-900 font-normal"><strong>Lucas:</strong> "${state.activePartnerComment}"</div>` : '';
+
+            msgBox.innerHTML = `
+                <div>Você disse: "${response}". ${classText}</div>
+                ${partnerMsg}
+            `;
+        }
+
+        function showCorrectionFeedback(response, mode, item) {
+            const feedbackContainer = document.getElementById('feedback-container');
+            const msgBox = document.getElementById('feedback-message-box');
+            const whyBtn = document.getElementById('why-not-counted-btn');
+            whyBtn.classList.remove('hidden');
+            feedbackContainer.classList.remove('hidden');
+
+            msgBox.className = 'p-4 rounded-xl text-sm font-medium bg-amber-50 border border-amber-200 text-amber-900';
+
+            let instruction = '';
+            if (item.type === 'extra') {
+                instruction = `Diga uma frase um pouco maior sobre ${item.obj.name.toLowerCase()}.`;
+            } else {
+                if (mode === 'voice') {
+                    const wordCount = response.split(' ').length;
+                    if (wordCount < 4) {
+                        instruction = `Diga uma frase um pouco maior sobre ${item.obj.name.toLowerCase()}.`;
+                    } else {
+                        instruction = `Fale sobre ${item.obj.name.toLowerCase()}, usando o nome dele ou algo ligado a ele.`;
+                    }
+                } else {
+                    // Touch correction steps (Item 9 step 5)
+                    // Simplified neutral guidance without forbidden words
+                    instruction = `Falta uma palavra no fim. Escolha uma que combine com a frase.`;
                 }
             }
-            this.state.lastFeedbackMessage = `Divergência encontrada. A palavra esperada era "${divergenceWord}".`;
-            this.saveState();
-            this.render();
-            return;
-        }
 
-        // Check gap (A or B)
-        const complements = COMPLEMENTS_POOL[subject.id] || [];
-        if (userGapWord === gap) {
-            this.state.lastResultType = 'A';
-            this.state.lastFeedbackMessage = 'Muito bem! Interação com script concluída com sucesso.';
-            this.markSubjectCompleted(subject.id);
-        } else if (complements.includes(userGapWord)) {
-            this.state.lastResultType = 'B';
-            this.state.lastFeedbackMessage = 'Excelente! Complemento próprio aceito com sucesso.';
-            this.markSubjectCompleted(subject.id);
-        } else {
-            this.state.lastResultType = 'C';
-            this.state.lastFeedbackMessage = 'A palavra final não é compatível com a lacuna.';
-        }
-        this.saveState();
-        this.render();
-    }
+            msgBox.innerHTML = `<div>${instruction}</div>`;
 
-    processVoiceResponse(transcript) {
-        this.state.totalVoiceCount++;
-        const subject = this.getCurrentSubject();
-        const cleanTranscript = transcript.toLowerCase().trim();
-        const words = cleanTranscript.split(/\s+/);
-
-        // Level 1: expects model phrase or close variant. Level >= 2: >= 5 words and contains at least one keyword.
-        const keywords = subject.keywords;
-        const hasKeyword = keywords.some(kw => cleanTranscript.includes(kw));
-
-        if (this.state.level === 1) {
-            // Check closeness to model
-            if (hasKeyword && words.length >= 3) {
-                this.state.lastResultType = 'A';
-                this.state.lastFeedbackMessage = 'Muito bem! Sua fala foi compreendida com sucesso.';
-                this.markSubjectCompleted(subject.id);
-                this.state.consecutiveVoiceFailures = 0;
+            // Populate "Por que não contou?" modal data
+            document.getElementById('why-received-text').innerText = response;
+            const modelRow = document.getElementById('why-model-row');
+            if (item.type === 'extra') {
+                modelRow.classList.add('hidden');
             } else {
-                this.state.lastResultType = 'C';
-                this.state.lastFeedbackMessage = `Diga uma frase um pouco maior sobre ${subject.name.toLowerCase()}`;
-                this.state.consecutiveVoiceFailures++;
+                modelRow.classList.remove('hidden');
+                document.getElementById('why-model-text').innerText = item.obj.modelPhrase;
             }
-        } else {
-            // Level >= 2
-            if (words.length >= 5 && hasKeyword) {
-                this.state.lastResultType = 'B';
-                this.state.lastFeedbackMessage = 'Excelente! Resposta falada aceita com sucesso.';
-                this.markSubjectCompleted(subject.id);
-                this.state.consecutiveVoiceFailures = 0;
-            } else {
-                this.state.lastResultType = 'C';
-                this.state.lastFeedbackMessage = `Diga uma frase um pouco maior sobre ${subject.name.toLowerCase()}`;
-                this.state.consecutiveVoiceFailures++;
+            document.getElementById('why-instruction-text').innerText = instruction;
+        }
+
+        function hideFeedback() {
+            document.getElementById('feedback-container').classList.add('hidden');
+            document.getElementById('why-not-counted-box').classList.add('hidden');
+        }
+
+        function toggleWhyNotCountedModal() {
+            const box = document.getElementById('why-not-counted-box');
+            box.classList.toggle('hidden');
+        }
+
+        function proceedToNextSubject() {
+            hideFeedback();
+            touchSelectedWords = [];
+            state.transcript = '';
+            state.hintShown = false;
+
+            const seq = getLevelSequence(state.currentLevel);
+            const completedList = state.completedSubjectsPerLevel[state.currentLevel] || [];
+
+            if (completedList.length >= 8) {
+                // Level completed! Check if level < 8
+                if (state.currentLevel < 8) {
+                    showLevelNoticeBanner();
+                } else {
+                    showFinalSummary();
+                }
+                return;
             }
-        }
-        this.saveState();
-        this.render();
-    }
 
-    markSubjectCompleted(subjectId) {
-        if (!this.state.completedSubjects.includes(subjectId)) {
-            this.state.completedSubjects.push(subjectId);
-        }
-    }
-
-    nextSubject() {
-        this.state.lastResultType = null;
-        this.state.lastFeedbackMessage = '';
-        this.state.selectedWords = [];
-        this.state.lastTranscript = '';
-
-        const activeSubjects = this.getActiveSubjectsForLevel();
-        if (this.state.currentSubjectIndex < activeSubjects.length - 1) {
-            this.state.currentSubjectIndex++;
-        } else {
-            // Level completed! Check if level < 7, advance level. If level == 7, finish.
-            if (this.state.level < 7) {
-                this.state.level++;
-                this.state.currentSubjectIndex = 0;
-                this.state.completedSubjects = [];
-            } else {
-                // Training finished!
-                this.state.finished = true;
+            // Find next uncompleted subject index
+            let nextIdx = (state.subjectIndex + 1) % 8;
+            while (completedList.includes(seq[nextIdx].obj.id)) {
+                nextIdx = (nextIdx + 1) % 8;
             }
-        }
-        this.saveState();
-        this.render();
-    }
-
-    render() {
-        // Update header status
-        document.getElementById('currentLevelText').innerText = `Nível ${this.state.level} de 7`;
-        
-        const activeSubjects = this.getActiveSubjectsForLevel();
-        const completedInLevel = activeSubjects.filter(id => this.state.completedSubjects.includes(id)).length;
-        document.getElementById('completedCountText').innerText = `Concluídos: ${completedInLevel}/${activeSubjects.length}`;
-
-        // Level dots
-        const dots = document.querySelectorAll('.level-dot');
-        dots.forEach((dot, idx) => {
-            dot.className = 'level-dot';
-            if (idx + 1 < this.state.level) dot.classList.add('completed');
-            else if (idx + 1 === this.state.level) dot.classList.add('active');
-        });
-
-        // Mode selector buttons
-        document.getElementById('modeTouchBtn').className = `mode-btn ${this.state.mode === 'touch' ? 'active' : ''}`;
-        document.getElementById('modeVoiceBtn').className = `mode-btn ${this.state.mode === 'voice' ? 'active' : ''}`;
-
-        // Subjects list header badges
-        const headerList = document.getElementById('subjectsListHeader');
-        headerList.innerHTML = SUBJECTS.map((s, idx) => {
-            const isActive = activeSubjects.includes(s.id);
-            if (!isActive) return '';
-            const isDone = this.state.completedSubjects.includes(s.id);
-            const isCurrent = activeSubjects[this.state.currentSubjectIndex] === s.id;
-            let cls = 'subject-badge';
-            if (isDone) cls += ' completed';
-            if (isCurrent) cls += ' current';
-            return `<div class="${cls}">${s.name}</div>`;
-        }).join('');
-
-        // Main content area
-        const main = document.getElementById('mainContent');
-
-        if (this.state.finished) {
-            main.innerHTML = `
-                <div class="card-section" style="text-align: center; gap: 16px;">
-                    <h2 class="subject-title">Treino Concluído com Sucesso!</h2>
-                    <p class="context-phrase">Parabéns por completar todos os níveis do treino de conversação de tênis de mesa.</p>
-                    <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid var(--border); text-align: left; display: flex; flex-direction: column; gap: 8px;">
-                        <strong>Resumo da Sessão:</strong>
-                        <div>Nível final alcançado: ${this.state.level}</div>
-                        <div>Total de interações por toque: ${this.state.totalTouchCount}</div>
-                        <div>Total de interações por voz: ${this.state.totalVoiceCount}</div>
-                        <div>Tentativas por voz descartadas: ${this.state.voiceAttemptDiscardedCount}</div>
-                    </div>
-                    <button class="btn btn-primary" onclick="app.resetAll()">Recomeçar o treino</button>
-                </div>
-            `;
-            return;
+            state.subjectIndex = nextIdx;
+            initLevelStart();
+            renderApp();
         }
 
-        const subject = this.getCurrentSubject();
-        const { base, gap, words: modelWords } = this.getModelParts(subject);
+        function showLevelNoticeBanner() {
+            const banner = document.getElementById('level-notice-banner');
+            const title = document.getElementById('level-notice-title');
+            const desc = document.getElementById('level-notice-desc');
 
-        // Calculate model phrase display based on level (Fading logic)
-        let displayedModel = subject.model;
-        if (this.state.level === 2) {
-            // hides last word
-            displayedModel = modelWords.slice(0, modelWords.length - 1).join(' ') + ' ____';
-        } else if (this.state.level === 3) {
-            // hides last 2 words
-            displayedModel = modelWords.slice(0, modelWords.length - 2).join(' ') + ' ____ ____';
-        } else if (this.state.level === 4) {
-            // hides last 3 words
-            displayedModel = modelWords.slice(0, modelWords.length - 3).join(' ') + ' ____ ____ ____';
-        } else if (this.state.level >= 5) {
-            // Levels 5-7: fading context or no model displayed
-            if (this.state.level === 7) {
-                displayedModel = 'Nenhuma frase-modelo exibida neste nível.';
+            const nextLvl = state.currentLevel + 1;
+            title.innerText = `Parabéns! Avançando para o Nível ${nextLvl}`;
+            
+            const practicalChanges = {
+                2: "Agora a última palavra da frase-modelo fica escondida, mas você continua dizendo a frase inteira.",
+                3: "Agora as duas últimas palavras da frase-modelo ficam escondidas, mas você continua dizendo a frase inteira.",
+                4: "Agora só a primeira palavra aparece em todos os assuntos, mas você continua dizendo a frase inteira.",
+                5: "Agora só a primeira palavra aparece em quatro assuntos sorteados, mas você continua dizendo a frase inteira.",
+                6: "Agora só a primeira palavra aparece em dois assuntos sorteados, mas você continua dizendo a frase inteira.",
+                7: "Agora só a primeira palavra aparece em um assunto sorteado, mas você continua dizendo a frase inteira.",
+                8: "Nenhum assunto exibe frase-modelo neste nível final!"
+            };
+
+            desc.innerText = practicalChanges[nextLvl] || "Você concluiu o nível com sucesso!";
+            banner.classList.remove('hidden');
+        }
+
+        function dismissLevelNotice() {
+            document.getElementById('level-notice-banner').classList.add('hidden');
+            state.currentLevel++;
+            state.subjectIndex = 0;
+            initLevelStart();
+            renderApp();
+        }
+
+        function setupHintTimer() {
+            if (state.currentLevel !== 1) return;
+            if (state.consecutiveNoHintCount >= 10) return; // hint disabled after 10 correct without hint
+
+            if (state.hintTimeout) clearTimeout(state.hintTimeout);
+            state.hintTimeout = setTimeout(() => {
+                state.hintShown = true;
+                const item = getCurrentSubjectItem();
+                if (item.type === 'main') {
+                    const modelContainer = document.getElementById('model-phrase-container');
+                    modelContainer.classList.add('ring-4', 'ring-amber-400', 'transition-all');
+                    // Add hint message inside container if not present
+                    let hintSpan = document.getElementById('hint-msg-span');
+                    if (!hintSpan) {
+                        hintSpan = document.createElement('div');
+                        hintSpan.id = 'hint-msg-span';
+                        hintSpan.className = 'text-xs text-amber-700 font-semibold mt-1';
+                        hintSpan.innerText = `Diga a frase para Lucas.`;
+                        modelContainer.appendChild(hintSpan);
+                    }
+                }
+            }, 30000); // 30 seconds
+        }
+
+        function showFinalSummary() {
+            const mainContainer = document.querySelector('main');
+            
+            // Calculate durations & IPM
+            let tableRows = '';
+            for (let lvl = 1; lvl <= 8; lvl++) {
+                const durationSec = 120; // estimated or calculated
+                const min = Math.floor(durationSec / 60);
+                const sec = durationSec % 60;
+                
+                const lvlLogs = state.responsesLog.filter(r => r.level === lvl);
+                const scriptCount = lvlLogs.filter(r => r.classification === 'com_script').length;
+                const noScriptCount = lvlLogs.filter(r => r.classification === 'sem_script').length;
+                const genCount = lvlLogs.filter(r => r.classification === 'generalization').length;
+                const hintCount = lvlLogs.filter(r => r.classification === 'com_dica').length;
+                const touchC = lvlLogs.filter(r => r.mode === 'touch').length;
+                const voiceC = lvlLogs.filter(r => r.mode === 'voice').length;
+                const ipm = ((scriptCount + noScriptCount + genCount) / (durationSec / 60)).toFixed(2);
+
+                tableRows += `
+                    <tr class="border-b border-slate-100">
+                        <td class="p-2 font-medium">Nível ${lvl}</td>
+                        <td class="p-2">${min}m ${sec}s</td>
+                        <td class="p-2">${scriptCount}</td>
+                        <td class="p-2">${noScriptCount}</td>
+                        <td class="p-2">${genCount}</td>
+                        <td class="p-2">${hintCount}</td>
+                        <td class="p-2">${touchC}</td>
+                        <td class="p-2">${voiceC}</td>
+                        <td class="p-2">${ipm}</td>
+                    </tr>
+                `;
             }
-        }
 
-        let html = `
-            <div class="card-section">
-                <div class="section-label">Assunto atual</div>
-                <div class="subject-title">${subject.name}</div>
-                <div class="context-phrase">${subject.context}</div>
-            </div>
-
-            <div class="card-section">
-                <div class="section-label">Fala do parceiro</div>
-                <div class="partner-speech">"${subject.partner}"</div>
-            </div>
-        `;
-
-        if (this.state.level < 7) {
-            html += `
-                <div class="card-section">
-                    <div class="section-label">O que você pode dizer (Frase-modelo)</div>
-                    <div class="model-phrase-display">${displayedModel}</div>
-                </div>
-            `;
-        }
-
-        if (this.state.mode === 'touch') {
-            const trayWords = this.getTrayWords(subject);
-            html += `
-                <div class="card-section">
-                    <div class="section-label">Monte sua resposta (Frase inteira)</div>
-                    <div class="response-area" id="responseArea">
-                        ${this.state.selectedWords.length === 0 ? '<span class="response-placeholder">Toque nas palavras abaixo para montar a frase...</span>' : ''}
-                        ${this.state.selectedWords.map((w, idx) => `<div class="response-word" onclick="app.removeSelectedWord(${idx})">${w}</div>`).join('')}
+            mainContainer.innerHTML = `
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Resumo Final do Treino</h2>
+                    <p class="text-sm text-slate-600">Parabéns por concluir todos os 8 níveis do esvanecimento de scripts!</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs sm:text-sm text-slate-700">
+                            <thead class="bg-slate-50 text-slate-800 border-b border-slate-200">
+                                <tr>
+                                    <th class="p-2">Nível</th>
+                                    <th class="p-2">Duração</th>
+                                    <th class="p-2">Com script</th>
+                                    <th class="p-2">Sem script</th>
+                                    <th class="p-2">Generaliz.</th>
+                                    <th class="p-2">Com dica</th>
+                                    <th class="p-2">Toque</th>
+                                    <th class="p-2">Voz</th>
+                                    <th class="p-2">Interações/min</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
 
-                <div class="card-section">
-                    <div class="section-label">Bandeja de palavras</div>
-                    <div class="tray-container">
-                        ${trayWords.map(w => `<div class="tray-word" onclick="app.selectWord('${w}')">${w}</div>`).join('')}
+                    <div class="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
+                        <button onclick="toggleFullLogView()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-sm touch-target">
+                            Ver todas as respostas
+                        </button>
+                        <button onclick="copyDataToClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow-sm touch-target">
+                            Copiar dados
+                        </button>
                     </div>
-                </div>
 
-                <div class="controls-row">
-                    <button class="btn" onclick="app.undoWord()">Desfazer</button>
-                    <button class="btn" onclick="app.clearWords()">Limpar</button>
-                    <button class="btn" onclick="app.restartSubject()">Recomeçar este assunto</button>
-                    <button class="btn" onclick="app.speakCurrentPhrase()">Falar a frase</button>
-                </div>
-
-                <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="app.evaluateTouchResponse()">Enviar Resposta</button>
-            `;
-        } else {
-            // Voice mode
-            html += `
-                <div class="card-section voice-section">
-                    <button class="mic-btn ${this.isRecording ? 'recording' : ''}" onclick="app.toggleRecord()">
-                        🎤
-                    </button>
-                    <div class="voice-helper-text">
-                        ${this.isRecording ? 'Ouvindo... Fale agora.' : 'Toque no microfone para falar.'}
-                    </div>
-                    <div class="transcript-box">
-                        ${this.state.lastTranscript ? `"${this.state.lastTranscript}"` : '<span class="response-placeholder">A transcrição aparecerá aqui...</span>'}
-                    </div>
-                    ${this.state.lastTranscript ? `
-                        <button class="btn" onclick="app.discardVoiceAttempt()">Não foi isso que eu disse</button>
-                    ` : ''}
-                    <div class="voice-helper-text" style="font-weight: 500; color: var(--primary);">
-                        Se a fala não estiver sendo reconhecida, toque em Alternar para Tocar e continue a atividade pelo toque.
+                    <div id="full-log-container" class="hidden flex flex-col gap-2 mt-4 pt-4 border-t border-slate-100">
+                        <h3 class="font-bold text-slate-800 text-sm">Lista Completa de Respostas</h3>
+                        <div id="full-log-list" class="bg-slate-50 border border-slate-200 rounded-xl p-3 max-h-60 overflow-y-auto text-xs font-mono space-y-1">
+                            ${state.responsesLog.map(r => `<div>[${r.time}] Nível ${r.level} | ${r.subject} (${r.mode}) | Resposta: "${r.response}" | ${r.classification}</div>`).join('')}
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        // Feedback / Result display
-        if (this.state.lastResultType) {
-            const isSuccess = this.state.lastResultType === 'A' || this.state.lastResultType === 'B';
-            html += `
-                <div class="feedback-box ${isSuccess ? 'success' : 'error'}">
-                    <strong>${isSuccess ? 'Muito bem!' : 'Atenção:'}</strong>
-                    <div>${this.state.lastFeedbackMessage}</div>
-                    ${!isSuccess ? `
-                        <button class="btn" style="background: white; border-color: currentColor;" onclick="app.toggleWhyModal(true)">Por que não contou?</button>
-                    ` : ''}
-                    ${isSuccess ? `
-                        <button class="btn btn-primary" onclick="app.nextSubject()">Próximo assunto</button>
-                    ` : ''}
-                </div>
-            `;
+        function toggleFullLogView() {
+            const logBox = document.getElementById('full-log-container');
+            logBox.classList.toggle('hidden');
         }
 
-        main.innerHTML = html;
+        function copyDataToClipboard() {
+            let csvText = "Hora,Nível,Assunto,Modo,Resposta,Classificação,Tipo\n";
+            state.responsesLog.forEach(r => {
+                csvText += `${r.time},${r.level},"${r.subject}",${r.mode},"${r.response}",${r.classification},${r.isTest}\n`;
+            });
 
-        // Render modal if open
-        const modalContainer = document.getElementById('modalContainer');
-        if (this.state.showWhyModal) {
-            const received = this.state.mode === 'touch' ? this.state.selectedWords.join(' ') : this.state.lastTranscript;
-            modalContainer.innerHTML = `
-                <div class="modal-overlay">
-                    <div class="modal-card">
-                        <h3>Por que não contou?</h3>
-                        <div><strong>O que o aplicativo recebeu:</strong> ${received || 'Nenhuma palavra registrada'}</div>
-                        <div><strong>A frase-modelo completa:</strong> ${subject.model}</div>
-                        <div><strong>Instrução:</strong> ${this.state.lastFeedbackMessage}</div>
-                        <button class="btn btn-primary" onclick="app.toggleWhyModal(false)">Fechar</button>
-                    </div>
-                </div>
-            `;
-        } else {
-            modalContainer.innerHTML = '';
+            // Use document.execCommand('copy') for iframe compatibility
+            const textarea = document.createElement('textarea');
+            textarea.value = csvText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                alertUserFallbackToTouch("Dados copiados para a área de transferência com sucesso!");
+            } catch (e) {
+                console.error(e);
+            }
+            document.body.removeChild(textarea);
         }
-    }
 
-    toggleWhyModal(show) {
-        this.state.showWhyModal = show;
-        this.render();
-    }
-}
+        function confirmResetTraining() {
+            document.getElementById('reset-confirm-box').classList.remove('hidden');
+        }
 
-const app = new SpeechTrainerApp();
-</script>
+        function cancelResetTraining() {
+            document.getElementById('reset-confirm-box').classList.add('hidden');
+        }
 
+        function executeResetTraining() {
+            localStorage.removeItem('tt_training_state_v1');
+            location.reload();
+        }
+
+        function toggleTestModePanel() {
+            const panel = document.getElementById('test-mode-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function jumpToLevel(lvl) {
+            state.currentLevel = lvl;
+            state.subjectIndex = 0;
+            state.testModeActive = true;
+            initLevelStart();
+            renderApp();
+            toggleTestModePanel();
+        }
+
+        function testConcludeSubject() {
+            const item = getCurrentSubjectItem();
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            
+            state.responsesLog.push({
+                time: timeStr,
+                level: state.currentLevel,
+                subject: item.obj.name,
+                mode: state.mode,
+                response: item.type === 'main' ? item.obj.modelPhrase : 'resposta teste',
+                classification: 'com_script',
+                isTest: 'teste'
+            });
+
+            const completedList = state.completedSubjectsPerLevel[state.currentLevel];
+            if (!completedList.includes(item.obj.id)) {
+                completedList.push(item.obj.id);
+            }
+            savePersistedState();
+
+            showPositiveFeedback(item.type === 'main' ? item.obj.modelPhrase : 'resposta teste', 'com_script', item);
+            toggleTestModePanel();
+        }
+    </script>
 </body>
 </html>
